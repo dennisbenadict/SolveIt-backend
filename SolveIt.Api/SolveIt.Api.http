@@ -1,0 +1,6 @@
+@SolveIt.Api_HostAddress = http://localhost:5135
+
+GET {{SolveIt.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
