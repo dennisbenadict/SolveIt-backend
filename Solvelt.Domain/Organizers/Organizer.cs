@@ -8,7 +8,7 @@ namespace Solvelt.Domain.Organizers;
 
 public sealed class Organizer
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; private set; }
     public string Email { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string AuthProvider { get; private set; } = null!;
