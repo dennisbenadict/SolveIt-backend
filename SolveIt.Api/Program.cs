@@ -1,15 +1,35 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using SolveIt.Infrastructure.Persistence;
+using Solvelt.Application.Interfaces;
+using Solvelt.Application.Organizers.Commands.RegisterOrganizer;
+using Solvelt.Infrastructure.Persistence;
+using Solvelt.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// DbContext
+builder.Services.AddDbContext<SolveItDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// MediatR
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(RegisterOrganizerHandler).Assembly));
+
+// Repositories
+builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,9 +37,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
+

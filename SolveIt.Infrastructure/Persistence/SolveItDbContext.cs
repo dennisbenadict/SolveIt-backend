@@ -6,7 +6,7 @@ using Solvelt.Domain.Organizers;
 
 namespace SolveIt.Infrastructure.Persistence
 {
-    internal sealed class SolveItDbContext : DbContext
+    public sealed class SolveItDbContext : DbContext
     {
         public SolveItDbContext(DbContextOptions<SolveItDbContext> options)
             : base(options)

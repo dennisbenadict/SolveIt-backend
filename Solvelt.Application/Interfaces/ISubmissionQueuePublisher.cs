@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Solvelt.Application.Submissions.Interfaces
+namespace Solvelt.Application.Interfaces
 {
     public interface ISubmissionQueuePublisher
     {

@@ -1,4 +1,4 @@
-﻿using Solvelt.Application.Submissions.Interfaces;
+﻿using Solvelt.Application.Interfaces;
 using Solvelt.Domain.Submissions;
 using System;
 using System.Collections.Generic;

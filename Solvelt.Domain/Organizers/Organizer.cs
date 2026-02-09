@@ -16,13 +16,32 @@ public sealed class Organizer
 
     private Organizer() { } // EF Core only
 
-    public Organizer(Guid id, string email, string name, string authProvider)
+    private Organizer(Guid id, string email, string name, string authProvider)
     {
         Id = id;
         Email = email;
         Name = name;
         AuthProvider = authProvider;
         CreatedAt = DateTime.UtcNow;
+    }
+
+    public static Organizer Create(
+    string name,
+    string email,
+    string authProvider)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Organizer name is required");
+
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Organizer email is required");
+
+        return new Organizer(
+            Guid.NewGuid(),
+            email.Trim().ToLowerInvariant(),
+            name.Trim(),
+            authProvider
+        );
     }
 }
 

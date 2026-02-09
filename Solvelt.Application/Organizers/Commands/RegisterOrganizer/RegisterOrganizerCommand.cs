@@ -1,0 +1,9 @@
+﻿using MediatR;
+
+namespace Solvelt.Application.Organizers.Commands.RegisterOrganizer;
+
+public sealed record RegisterOrganizerCommand(
+    string Name,
+    string Email
+) : IRequest<Guid>;
+
