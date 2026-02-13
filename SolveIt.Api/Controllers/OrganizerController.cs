@@ -16,7 +16,7 @@ public sealed class OrganizerController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register(
+    public async Task<ActionResult<Guid>> Register(
         RegisterOrganizerCommand command,
         CancellationToken cancellationToken)
     {
