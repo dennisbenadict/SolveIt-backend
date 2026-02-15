@@ -18,16 +18,46 @@ public sealed class RegisterOrganizerHandler
         RegisterOrganizerCommand request,
         CancellationToken cancellationToken)
     {
-        var exists = await _organizerRepository
-            .ExistsByEmailAsync(request.Email, cancellationToken);
+        // Normalize email
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
-        if (exists)
-            throw new InvalidOperationException("Organizer already exists");
+        // Normalize phone safely
+        var rawPhone = request.PhoneNumber.Trim();
+
+        string normalizedPhone;
+
+        if (rawPhone.StartsWith("+91"))
+        {
+            normalizedPhone = rawPhone;
+        }
+        else if (rawPhone.StartsWith("91") && rawPhone.Length == 12)
+        {
+            normalizedPhone = "+" + rawPhone;
+        }
+        else
+        {
+            normalizedPhone = "+91" + rawPhone;
+        }
+
+        // Email uniqueness
+        if (await _organizerRepository
+            .ExistsByEmailAsync(normalizedEmail, cancellationToken))
+        {
+            throw new InvalidOperationException("Email is already registered.");
+        }
+
+        // Phone uniqueness
+        if (await _organizerRepository
+            .ExistsByPhoneAsync(normalizedPhone, cancellationToken))
+        {
+            throw new InvalidOperationException("Phone number is already registered.");
+        }
 
         var organizer = Organizer.Create(
-            request.Name,
-            request.Email,
-            authProvider: "local"
+            request.Name.Trim(),
+            normalizedEmail,
+            normalizedPhone,
+            "local"
         );
 
         await _organizerRepository.AddAsync(organizer, cancellationToken);

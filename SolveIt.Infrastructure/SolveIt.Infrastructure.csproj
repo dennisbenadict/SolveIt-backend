@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Solvelt.Application\Solvelt.Application.csproj" />
-    <ProjectReference Include="..\Solvelt.Domain\Solvelt.Domain.csproj" />
+    <ProjectReference Include="..\SolveIt.Application\SolveIt.Application.csproj" />
+    <ProjectReference Include="..\SolveIt.Domain\SolveIt.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,6 @@
 using SolveIt.Infrastructure.Persistence;
 using Solvelt.Application.Interfaces;
 using Solvelt.Domain.Organizers;
-using Solvelt.Infrastructure.Persistence;
 
 namespace Solvelt.Infrastructure.Repositories;
 
@@ -29,6 +28,14 @@ public sealed class OrganizerRepository : IOrganizerRepository
     {
         return await _dbContext.Organizers
             .AnyAsync(o => o.Email == email, cancellationToken);
+    }
+
+    public async Task<bool> ExistsByPhoneAsync(
+    string phoneNumber,
+    CancellationToken cancellationToken)
+    {
+        return await _dbContext.Organizers
+            .AnyAsync(o => o.PhoneNumber == phoneNumber, cancellationToken);
     }
 }
 

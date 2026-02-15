@@ -2,9 +2,10 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Solvelt.Domain.Organizers;
 
-namespace Solvelt.Infrastructure.Persistence.Configurations
+namespace SolveIt.Infrastructure.Persistence.Configurations
 {
-    internal sealed class OrganizerConfiguration : IEntityTypeConfiguration<Organizer>
+    internal sealed class OrganizerConfiguration
+        : IEntityTypeConfiguration<Organizer>
     {
         public void Configure(EntityTypeBuilder<Organizer> builder)
         {
@@ -22,10 +23,19 @@ namespace Solvelt.Infrastructure.Persistence.Configurations
             // Email (unique)
             builder.Property(o => o.Email)
                 .HasColumnName("email")
-                .HasMaxLength(255)
+                .HasMaxLength(254)
                 .IsRequired();
 
             builder.HasIndex(o => o.Email)
+                .IsUnique();
+
+            // Phone (unique)
+            builder.Property(o => o.PhoneNumber)
+                .HasColumnName("phone_number")
+                .HasMaxLength(13)
+                .IsRequired();
+
+            builder.HasIndex(o => o.PhoneNumber)
                 .IsUnique();
 
             // Name
@@ -48,4 +58,5 @@ namespace Solvelt.Infrastructure.Persistence.Configurations
         }
     }
 }
+
 
