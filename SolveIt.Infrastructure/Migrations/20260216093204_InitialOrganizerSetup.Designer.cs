@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SolveIt.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SolveIt.Infrastructure.Persistence;
 namespace SolveIt.Infrastructure.Migrations
 {
     [DbContext(typeof(SolveItDbContext))]
-    partial class SolveItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260216093204_InitialOrganizerSetup")]
+    partial class InitialOrganizerSetup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -12,17 +12,19 @@ public sealed class Organizer
     public string Email { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string PhoneNumber { get; private set; } = null!;
+    public string PasswordHash { get; private set; } = null!;
     public string AuthProvider { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; }
 
     private Organizer() { } // EF Core only
 
-    private Organizer(Guid id, string email, string name, string phoneNumber, string authProvider)
+    private Organizer(Guid id, string name, string email, string phoneNumber, string passwordHash, string authProvider)
     {
         Id = id;
-        Email = email;
         Name = name;
+        Email = email;
         PhoneNumber = phoneNumber;
+        PasswordHash = passwordHash;
         AuthProvider = authProvider;
         CreatedAt = DateTime.UtcNow;
     }
@@ -31,7 +33,7 @@ public sealed class Organizer
         string name,
         string email,
         string phoneNumber,
-        string authProvider)
+        string passwordHash)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name required");
@@ -42,14 +44,18 @@ public sealed class Organizer
         if (string.IsNullOrWhiteSpace(phoneNumber))
             throw new ArgumentException("Phone required");
 
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new ArgumentException("Password required");
+
+
         return new Organizer(
             Guid.NewGuid(),
             email.Trim().ToLowerInvariant(),
             name.Trim(),
             phoneNumber,
-            authProvider
+            passwordHash,
+            "local"
         );
     }
-
 }
 

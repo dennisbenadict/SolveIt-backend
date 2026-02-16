@@ -21,6 +21,9 @@ public sealed class RegisterOrganizerHandler
         // Normalize email
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
+        // Normalize name
+        var normalizedName = request.Name.Trim();
+
         // Normalize phone safely
         var rawPhone = request.PhoneNumber.Trim();
 
@@ -53,11 +56,14 @@ public sealed class RegisterOrganizerHandler
             throw new InvalidOperationException("Phone number is already registered.");
         }
 
+        // Password validation
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
         var organizer = Organizer.Create(
-            request.Name.Trim(),
+            normalizedName,
             normalizedEmail,
             normalizedPhone,
-            "local"
+            passwordHash
         );
 
         await _organizerRepository.AddAsync(organizer, cancellationToken);

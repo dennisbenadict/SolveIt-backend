@@ -38,6 +38,12 @@ namespace SolveIt.Infrastructure.Persistence.Configurations
             builder.HasIndex(o => o.PhoneNumber)
                 .IsUnique();
 
+            // Password Hash
+            builder.Property(o => o.PasswordHash)
+                .HasColumnName("password_hash")
+                .HasMaxLength(200)
+                .IsRequired();
+
             // Name
             builder.Property(o => o.Name)
                 .HasColumnName("name")

@@ -38,7 +38,22 @@ public sealed class RegisterOrganizerValidator
 			.NotEmpty().WithMessage("Phone number is required.")
 			.Must(p => IndianPhoneRegex.IsMatch(p))
 			.WithMessage("Phone number must be a valid Indian mobile number.");
-	}
+
+        // PASSWORD
+        RuleFor(x => x.Password)
+            .NotEmpty()
+            .MinimumLength(8)
+            .MaximumLength(100)
+            .Matches("[A-Z]").WithMessage("Must contain uppercase.")
+            .Matches("[a-z]").WithMessage("Must contain lowercase.")
+            .Matches("[0-9]").WithMessage("Must contain digit.")
+            .Matches("[^a-zA-Z0-9]").WithMessage("Must contain special character.");
+
+        RuleFor(x => x.ConfirmPassword)
+            .Equal(x => x.Password)
+            .WithMessage("Passwords do not match.");
+
+    }
 }
 
 
