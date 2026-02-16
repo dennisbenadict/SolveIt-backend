@@ -1,9 +1,18 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SolveIt.Infrastructure.Persistence;
+using Solvelt.Api.Middleware;
 using Solvelt.Application.Interfaces;
 using Solvelt.Application.Organizers.Commands.RegisterOrganizer;
 using Solvelt.Infrastructure.Repositories;
+using Solvelt.Application.Common.Interfaces;
+using Solvelt.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +32,42 @@ builder.Services.AddDbContext<SolveItDbContext>(options =>
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(RegisterOrganizerHandler).Assembly));
 
+// FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssembly(typeof(RegisterOrganizerCommand).Assembly);
+
+// JwtTokenService
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+
 // Repositories
 builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSection["SecretKey"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSection["Issuer"],
+        ValidAudience = jwtSection["Audience"],
+
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(secretKey!))
+    };
+});
+
 
 var app = builder.Build();
 
@@ -36,6 +79,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Global Exception Handling Middleware
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Solvelt.Application.Interfaces;
+using Solvelt.Application.Organizers.Exceptions;
 using Solvelt.Domain.Organizers;
 
 namespace Solvelt.Application.Organizers.Commands.RegisterOrganizer;
@@ -46,14 +47,14 @@ public sealed class RegisterOrganizerHandler
         if (await _organizerRepository
             .ExistsByEmailAsync(normalizedEmail, cancellationToken))
         {
-            throw new InvalidOperationException("Email is already registered.");
+            throw new EmailAlreadyExistsException();
         }
 
         // Phone uniqueness
         if (await _organizerRepository
             .ExistsByPhoneAsync(normalizedPhone, cancellationToken))
         {
-            throw new InvalidOperationException("Phone number is already registered.");
+            throw new PhoneAlreadyExistsException();
         }
 
         // Password validation

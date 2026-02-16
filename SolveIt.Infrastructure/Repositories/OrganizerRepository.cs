@@ -37,5 +37,20 @@ public sealed class OrganizerRepository : IOrganizerRepository
         return await _dbContext.Organizers
             .AnyAsync(o => o.PhoneNumber == phoneNumber, cancellationToken);
     }
+
+    public async Task<Organizer?> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Organizers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Email == email, cancellationToken);
+    }
+
+    public async Task<Organizer?> GetByPhoneAsync(string phone, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Organizers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.PhoneNumber == phone, cancellationToken);
+    }
+
 }
 
