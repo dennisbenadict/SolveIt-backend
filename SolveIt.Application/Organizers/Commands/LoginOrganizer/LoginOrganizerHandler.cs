@@ -13,13 +13,16 @@ public sealed class LoginOrganizerHandler
 {
     private readonly IOrganizerRepository _repository;
     private readonly IJwtTokenService _jwtService;
+    private readonly IRefreshTokenRepository _refreshRepository;
 
     public LoginOrganizerHandler(
         IOrganizerRepository repository,
-        IJwtTokenService jwtService)
+        IJwtTokenService jwtService,
+        IRefreshTokenRepository refreshRepository)
     {
         _repository = repository;
         _jwtService = jwtService;
+        _refreshRepository = refreshRepository;
     }
 
     public async Task<LoginResponse> Handle(
@@ -53,7 +56,29 @@ public sealed class LoginOrganizerHandler
         if (!passwordValid)
             throw new InvalidCredentialsException();
 
-        return _jwtService.GenerateToken(organizer);
+        // Generate tokens
+        var accessToken = _jwtService.GenerateAccessToken(organizer);
+        var refreshToken = _jwtService.GenerateRefreshToken();
+        var refreshTokenHash = _jwtService.HashRefreshToken(refreshToken);
+
+        // CREATE refresh token entity
+        var refreshEntity = RefreshToken.Create(
+            organizer.Id,
+            refreshTokenHash,
+            DateTime.UtcNow.AddDays(7) // production expiry
+        );
+
+        // Persist refresh token
+        await _refreshRepository.AddAsync(refreshEntity, cancellationToken);
+        await _refreshRepository.SaveChangesAsync(cancellationToken);
+
+        // TODO: Save refreshTokenHash in DB (next step)
+
+        // Return RAW tokens (only once)
+        return new LoginResponse(
+            accessToken,
+            refreshToken
+        );
     }
 
     private static string NormalizePhone(string input)

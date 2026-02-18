@@ -14,7 +14,12 @@ public sealed class RegisterOrganizerValidator
 	private static readonly Regex NameRegex =
 		new(@"^[a-zA-Z0-9\s\.\-']+$", RegexOptions.Compiled);
 
-	public RegisterOrganizerValidator()
+    private static readonly Regex EmailRegex =
+    new(@"^[A-Za-z0-9](?!.*[._-]{2})[A-Za-z0-9._-]*[A-Za-z0-9]@[A-Za-z0-9-]+\.[A-Za-z]{2,}$",
+        RegexOptions.Compiled);
+
+
+    public RegisterOrganizerValidator()
 	{
 		// NAME
 		RuleFor(x => x.Name)
@@ -30,10 +35,12 @@ public sealed class RegisterOrganizerValidator
 			.NotEmpty().WithMessage("Email is required.")
 			.MaximumLength(254)
 			.EmailAddress()
-			.WithMessage("Invalid email format.");
+			.WithMessage("Invalid email format.")
+		    .Matches(EmailRegex)
+            .WithMessage("Email cannot start or end with special characters.");
 
-		// PHONE (E.164)
-		RuleFor(x => x.PhoneNumber)
+        // PHONE (E.164)
+        RuleFor(x => x.PhoneNumber)
 			.Cascade(CascadeMode.Stop)
 			.NotEmpty().WithMessage("Phone number is required.")
 			.Must(p => IndianPhoneRegex.IsMatch(p))

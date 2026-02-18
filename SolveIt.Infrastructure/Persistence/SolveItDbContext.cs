@@ -15,6 +15,9 @@ namespace SolveIt.Infrastructure.Persistence
 
         // DbSets (one per aggregate root)
         public DbSet<Organizer> Organizers => Set<Organizer>();
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
         //public DbSet<Participant> Participants => Set<Participant>();
         //public DbSet<Tournament> Tournaments => Set<Tournament>();
         //public DbSet<Submission> Submissions => Set<Submission>();

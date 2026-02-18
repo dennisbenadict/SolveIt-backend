@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Solvelt.Application.Common.Interfaces;
-using Solvelt.Application.Organizers.Commands.LoginOrganizer;
 using Solvelt.Domain.Organizers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using JwtClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
-
 
 namespace Solvelt.Infrastructure.Services;
 
@@ -20,7 +19,7 @@ public sealed class JwtTokenService : IJwtTokenService
         _configuration = configuration;
     }
 
-    public LoginResponse GenerateToken(Organizer organizer)
+    public string GenerateAccessToken(Organizer organizer)
     {
         var jwtSection = _configuration.GetSection("Jwt");
 
@@ -53,9 +52,30 @@ public sealed class JwtTokenService : IJwtTokenService
             signingCredentials: credentials
         );
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 
-        return new LoginResponse(tokenString, expiresAt);
+    public string GenerateRefreshToken()
+    {
+        // 256-bit secure random token (32 bytes)
+        var randomBytes = new byte[32];
+
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+
+        return Convert.ToBase64String(randomBytes)
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .Replace("=", "");
+    }
+
+    public string HashRefreshToken(string refreshToken)
+    {
+        using var sha = SHA256.Create();
+
+        var bytes = Encoding.UTF8.GetBytes(refreshToken);
+        var hash = sha.ComputeHash(bytes);
+
+        return Convert.ToHexString(hash); // 64 char hex
     }
 }
-

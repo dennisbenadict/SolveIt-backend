@@ -45,6 +45,14 @@ public sealed class OrganizerRepository : IOrganizerRepository
             .FirstOrDefaultAsync(o => o.Email == email, cancellationToken);
     }
 
+    public async Task<Organizer?> GetByIdAsync(
+    Guid organizerId,
+    CancellationToken cancellationToken)
+    {
+        return await _dbContext.Organizers
+            .SingleOrDefaultAsync(x => x.Id == organizerId, cancellationToken);
+    }
+
     public async Task<Organizer?> GetByPhoneAsync(string phone, CancellationToken cancellationToken)
     {
         return await _dbContext.Organizers

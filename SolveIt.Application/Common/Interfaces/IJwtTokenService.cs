@@ -5,6 +5,8 @@ namespace Solvelt.Application.Common.Interfaces;
 
 public interface IJwtTokenService
 {
-    LoginResponse GenerateToken(Organizer organizer);
+    string GenerateAccessToken(Organizer organizer);
+    string GenerateRefreshToken();
+    string HashRefreshToken(string refreshToken);
 }
 

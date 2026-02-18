@@ -1,0 +1,17 @@
+﻿using Solvelt.Domain.Organizers;
+
+namespace Solvelt.Application.Common.Interfaces;
+
+public interface IRefreshTokenRepository
+{
+    Task AddAsync(RefreshToken token, CancellationToken cancellationToken);
+
+    Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken cancellationToken);
+
+    Task RevokeAllByOrganizerIdAsync(
+    Guid organizerId,
+    CancellationToken cancellationToken);
+
+    Task SaveChangesAsync(CancellationToken cancellationToken);
+}
+
