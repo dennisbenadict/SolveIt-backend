@@ -1,5 +1,6 @@
 ﻿using BCrypt.Net;
 using MediatR;
+using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using Solvelt.Application.Common.Interfaces;
 using Solvelt.Application.Interfaces;
 using Solvelt.Application.Organizers.Exceptions;
@@ -9,7 +10,7 @@ using System.Security.Authentication;
 namespace Solvelt.Application.Organizers.Commands.LoginOrganizer;
 
 public sealed class LoginOrganizerHandler
-    : IRequestHandler<LoginOrganizerCommand, LoginResponse>
+    : IRequestHandler<LoginOrganizerCommand, AuthResponseDto>
 {
     private readonly IOrganizerRepository _repository;
     private readonly IJwtTokenService _jwtService;
@@ -25,7 +26,7 @@ public sealed class LoginOrganizerHandler
         _refreshRepository = refreshRepository;
     }
 
-    public async Task<LoginResponse> Handle(
+    public async Task<AuthResponseDto> Handle(
         LoginOrganizerCommand request,
         CancellationToken cancellationToken)
     {
@@ -75,7 +76,7 @@ public sealed class LoginOrganizerHandler
         // TODO: Save refreshTokenHash in DB (next step)
 
         // Return RAW tokens (only once)
-        return new LoginResponse(
+        return new AuthResponseDto(
             accessToken,
             refreshToken
         );

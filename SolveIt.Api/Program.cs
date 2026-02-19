@@ -153,6 +153,10 @@ builder.Services.AddDbContext<SolveItDbContext>(options =>
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(RegisterOrganizerHandler).Assembly));
 
+// AutoMapper
+builder.Services.AddAutoMapper(
+    typeof(MappingProfile).Assembly);
+
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(RegisterOrganizerCommand).Assembly);

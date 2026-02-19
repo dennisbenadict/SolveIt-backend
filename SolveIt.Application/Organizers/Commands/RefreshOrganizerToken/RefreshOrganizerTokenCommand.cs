@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Solvelt.Application.Organizers.Commands.LoginOrganizer;
+using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 
 namespace Solvelt.Application.Organizers.Commands.RefreshOrganizerToken;
 
 public sealed record RefreshOrganizerTokenCommand(string RefreshToken)
-    : IRequest<LoginResponse>;
+    : IRequest<AuthResponseDto>;
 

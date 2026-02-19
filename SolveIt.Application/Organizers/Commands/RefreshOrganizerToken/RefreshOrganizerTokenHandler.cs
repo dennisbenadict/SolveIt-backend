@@ -1,15 +1,15 @@
 ﻿using MediatR;
+using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Common.Exceptions;
 using Solvelt.Application.Common.Interfaces;
 using Solvelt.Application.Interfaces;
-using Solvelt.Application.Organizers.Commands.LoginOrganizer;
 using Solvelt.Application.Organizers.Exceptions;
 using Solvelt.Domain.Organizers;
 
 namespace Solvelt.Application.Organizers.Commands.RefreshOrganizerToken;
 
 public sealed class RefreshOrganizerTokenHandler
-    : IRequestHandler<RefreshOrganizerTokenCommand, LoginResponse>
+    : IRequestHandler<RefreshOrganizerTokenCommand, AuthResponseDto>
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IOrganizerRepository _organizerRepository;
@@ -25,7 +25,7 @@ public sealed class RefreshOrganizerTokenHandler
         _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<LoginResponse> Handle(
+    public async Task<AuthResponseDto> Handle(
         RefreshOrganizerTokenCommand request,
         CancellationToken cancellationToken)
     {
@@ -93,7 +93,7 @@ public sealed class RefreshOrganizerTokenHandler
         await _refreshTokenRepository
             .SaveChangesAsync(cancellationToken);
 
-        return new LoginResponse(
+        return new AuthResponseDto(
             newAccessToken,
             rawRefreshToken);
     }
