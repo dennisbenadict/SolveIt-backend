@@ -1,4 +1,4 @@
-﻿namespace Solvelt.Domain.Exceptions;
+namespace SolveIt.Domain.Exceptions;
 
 public sealed class InvalidRefreshTokenOrganizerException : DomainException
 {

@@ -1,12 +1,12 @@
-﻿using MediatR;
+using MediatR;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Common.Exceptions;
-using Solvelt.Application.Common.Interfaces;
-using Solvelt.Application.Interfaces;
-using Solvelt.Application.Organizers.Exceptions;
-using Solvelt.Domain.Organizers;
+using SolveIt.Application.Common.Interfaces;
+using SolveIt.Application.Interfaces;
+using SolveIt.Application.Organizers.Exceptions;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Application.Organizers.Commands.RefreshOrganizerToken;
+namespace SolveIt.Application.Organizers.Commands.RefreshOrganizerToken;
 
 public sealed class RefreshOrganizerTokenHandler
     : IRequestHandler<RefreshOrganizerTokenCommand, AuthResponseDto>

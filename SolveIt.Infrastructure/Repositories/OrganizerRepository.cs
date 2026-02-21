@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SolveIt.Infrastructure.Persistence;
-using Solvelt.Application.Interfaces;
-using Solvelt.Domain.Organizers;
+using SolveIt.Application.Interfaces;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Infrastructure.Repositories;
+namespace SolveIt.Infrastructure.Repositories;
 
 public sealed class OrganizerRepository : IOrganizerRepository
 {

@@ -1,5 +1,5 @@
-﻿using MediatR;
-using Solvelt.Application.Common.Interfaces;
+using MediatR;
+using SolveIt.Application.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

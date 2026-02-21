@@ -1,12 +1,12 @@
-﻿using Solvelt.Application.Interfaces;
-using Solvelt.Domain.Submissions;
+using SolveIt.Application.Interfaces;
+using SolveIt.Domain.Submissions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Solvelt.Application.Submissions.Commands.SubmitSolution
+namespace SolveIt.Application.Submissions.Commands.SubmitSolution
 {
     public sealed class SubmitSolutionHandler
     {

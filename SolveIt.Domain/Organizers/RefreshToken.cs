@@ -1,6 +1,6 @@
-﻿using Solvelt.Domain.Exceptions;
+using SolveIt.Domain.Exceptions;
 
-namespace Solvelt.Domain.Organizers;
+namespace SolveIt.Domain.Organizers;
 
 public sealed class RefreshToken
 {

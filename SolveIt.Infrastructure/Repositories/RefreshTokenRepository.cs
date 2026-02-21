@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SolveIt.Infrastructure.Persistence;
-using Solvelt.Application.Common.Interfaces;
-using Solvelt.Domain.Organizers;
+using SolveIt.Application.Common.Interfaces;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Infrastructure.Repositories;
+namespace SolveIt.Infrastructure.Repositories;
 
 public sealed class RefreshTokenRepository : IRefreshTokenRepository
 {

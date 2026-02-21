@@ -1,13 +1,13 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 using MediatR;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
-using Solvelt.Application.Common.Interfaces;
-using Solvelt.Application.Interfaces;
-using Solvelt.Application.Organizers.Exceptions;
-using Solvelt.Domain.Organizers;
+using SolveIt.Application.Common.Interfaces;
+using SolveIt.Application.Interfaces;
+using SolveIt.Application.Organizers.Exceptions;
+using SolveIt.Domain.Organizers;
 using System.Security.Authentication;
 
-namespace Solvelt.Application.Organizers.Commands.LoginOrganizer;
+namespace SolveIt.Application.Organizers.Commands.LoginOrganizer;
 
 public sealed class LoginOrganizerHandler
     : IRequestHandler<LoginOrganizerCommand, AuthResponseDto>

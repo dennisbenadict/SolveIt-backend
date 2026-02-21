@@ -1,4 +1,4 @@
-﻿using Solvelt.Domain.Exceptions;
+using SolveIt.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

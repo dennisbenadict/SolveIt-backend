@@ -1,9 +1,8 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 using MediatR;
 using SolveIt.Application.Common.Exceptions;
+using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
-using Solvelt.Application.Common.Interfaces;
-using Solvelt.Application.Interfaces;
 
 public sealed class ResetPasswordHandler
     : IRequestHandler<ResetPasswordCommand, Unit>

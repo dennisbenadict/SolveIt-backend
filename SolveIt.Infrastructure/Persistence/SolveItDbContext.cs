@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 //using SolveIt.Domain.Participants;
 //using SolveIt.Domain.Submissions;
 //using SolveIt.Domain.Tournaments;
-using Solvelt.Domain.Organizers;
+using SolveIt.Domain.Organizers;
 
 namespace SolveIt.Infrastructure.Persistence
 {

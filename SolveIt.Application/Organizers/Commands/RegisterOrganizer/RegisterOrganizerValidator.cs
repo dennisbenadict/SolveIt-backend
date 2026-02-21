@@ -1,6 +1,6 @@
 using FluentValidation;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
-using Solvelt.Application.Organizers.Commands.RegisterOrganizer;
+using SolveIt.Application.Organizers.Commands.RegisterOrganizer;
 using System.Text.RegularExpressions;
 
 namespace SolveIt.Application.Organizers.Commands.RegisterOrganizer;

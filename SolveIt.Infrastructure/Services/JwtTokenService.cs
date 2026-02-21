@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Solvelt.Application.Common.Interfaces;
-using Solvelt.Domain.Organizers;
+using SolveIt.Application.Common.Interfaces;
+using SolveIt.Domain.Organizers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using JwtClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
-namespace Solvelt.Infrastructure.Services;
+namespace SolveIt.Infrastructure.Services;
 
 public sealed class JwtTokenService : IJwtTokenService
 {

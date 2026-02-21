@@ -1,9 +1,9 @@
-﻿using FluentValidation;
+using FluentValidation;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
-namespace Solvelt.Application.Organizers.Commands.LoginOrganizer;
+namespace SolveIt.Application.Organizers.Commands.LoginOrganizer;
 
 public sealed class LoginOrganizerValidator
     : AbstractValidator<LoginOrganizerRequestDto>

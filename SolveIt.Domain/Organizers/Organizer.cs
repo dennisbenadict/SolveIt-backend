@@ -1,11 +1,11 @@
-﻿using SolveIt.Domain.Exceptions;
+using SolveIt.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Solvelt.Domain.Organizers;
+namespace SolveIt.Domain.Organizers;
 
 public sealed class Organizer
 {

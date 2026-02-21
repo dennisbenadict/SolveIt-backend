@@ -1,16 +1,16 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Organizers.Commands.RevokeOrganizerSession;
-using Solvelt.Api.Contracts;
-using Solvelt.Application.Organizers.Commands.LoginOrganizer;
-using Solvelt.Application.Organizers.Commands.RefreshOrganizerToken;
-using Solvelt.Application.Organizers.Commands.RegisterOrganizer;
+using SolveIt.Api.Contracts;
+using SolveIt.Application.Organizers.Commands.LoginOrganizer;
+using SolveIt.Application.Organizers.Commands.RefreshOrganizerToken;
+using SolveIt.Application.Organizers.Commands.RegisterOrganizer;
 using System.Net;
 
-namespace Solvelt.Api.Controllers;
+namespace SolveIt.Api.Controllers;
 
 [ApiController]
 [Route("api/organizers")]

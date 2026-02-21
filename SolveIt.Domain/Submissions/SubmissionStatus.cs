@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Solvelt.Domain.Submissions
+namespace SolveIt.Domain.Submissions
 {
     public enum SubmissionStatus
     {

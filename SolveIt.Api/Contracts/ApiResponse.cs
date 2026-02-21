@@ -1,6 +1,6 @@
-﻿using System.Net;
+using System.Net;
 
-namespace Solvelt.Api.Contracts;
+namespace SolveIt.Api.Contracts;
 
 public sealed class ApiResponse<T>
 {

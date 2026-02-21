@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Solvelt.Domain.Organizers;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Infrastructure.Persistence.Configurations;
+namespace SolveIt.Infrastructure.Persistence.Configurations;
 
 internal sealed class RefreshTokenConfiguration
     : IEntityTypeConfiguration<RefreshToken>

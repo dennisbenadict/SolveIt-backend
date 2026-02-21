@@ -1,6 +1,6 @@
-﻿using Solvelt.Domain.Organizers;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Application.Common.Interfaces;
+namespace SolveIt.Application.Common.Interfaces;
 
 public interface IRefreshTokenRepository
 {

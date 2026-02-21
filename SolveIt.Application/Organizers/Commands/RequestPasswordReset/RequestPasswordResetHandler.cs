@@ -1,9 +1,8 @@
-﻿using MediatR;
+using MediatR;
+using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Commands.RequestPasswordReset;
-using Solvelt.Application.Common.Interfaces;
-using Solvelt.Application.Interfaces;
-using Solvelt.Domain.Organizers;
+using SolveIt.Domain.Organizers;
 
 public sealed class RequestPasswordResetHandler
     : IRequestHandler<RequestPasswordResetCommand, Unit>

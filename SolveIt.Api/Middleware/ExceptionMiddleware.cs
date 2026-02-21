@@ -1,9 +1,9 @@
-﻿using SolveIt.Application.Common.Exceptions;
-using Solvelt.Api.Contracts;
-using Solvelt.Domain.Exceptions;
+using SolveIt.Application.Common.Exceptions;
+using SolveIt.Api.Contracts;
+using SolveIt.Domain.Exceptions;
 using System.Net;
 
-namespace Solvelt.Api.Middleware;
+namespace SolveIt.Api.Middleware;
 
 public sealed class ExceptionMiddleware
 {
@@ -30,7 +30,7 @@ public sealed class ExceptionMiddleware
             await HandleAsync(context, HttpStatusCode.BadRequest, ex.Message);
         }
         // Domain-level exceptions
-        catch (Solvelt.Domain.Exceptions.DomainException ex)
+        catch (SolveIt.Domain.Exceptions.DomainException ex)
         {
             await HandleAsync(context, HttpStatusCode.BadRequest, ex.Message);
         }

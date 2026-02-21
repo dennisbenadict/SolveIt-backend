@@ -1,6 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
-using Solvelt.Domain.Organizers;
+using SolveIt.Domain.Organizers;
 
 public sealed class MappingProfile : Profile
 {

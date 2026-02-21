@@ -1,6 +1,6 @@
-﻿using Solvelt.Domain.Organizers;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Application.Interfaces;
+namespace SolveIt.Application.Interfaces;
 
 public interface IOrganizerRepository
 {

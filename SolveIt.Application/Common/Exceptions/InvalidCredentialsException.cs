@@ -1,6 +1,6 @@
-﻿using SolveIt.Application.Common.Exceptions;
+using SolveIt.Application.Common.Exceptions;
 
-namespace Solvelt.Application.Organizers.Exceptions;
+namespace SolveIt.Application.Organizers.Exceptions;
 
 public sealed class InvalidCredentialsException : DomainException
 {

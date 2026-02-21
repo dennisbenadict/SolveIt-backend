@@ -1,9 +1,9 @@
-﻿using MediatR;
-using Solvelt.Application.Interfaces;
-using Solvelt.Application.Organizers.Exceptions;
-using Solvelt.Domain.Organizers;
+using MediatR;
+using SolveIt.Application.Interfaces;
+using SolveIt.Application.Organizers.Exceptions;
+using SolveIt.Domain.Organizers;
 
-namespace Solvelt.Application.Organizers.Commands.RegisterOrganizer;
+namespace SolveIt.Application.Organizers.Commands.RegisterOrganizer;
 
 public sealed class RegisterOrganizerHandler
     : IRequestHandler<RegisterOrganizerCommand, Guid>

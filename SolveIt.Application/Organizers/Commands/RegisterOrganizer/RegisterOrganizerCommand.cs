@@ -1,6 +1,6 @@
-﻿using MediatR;
+using MediatR;
 
-namespace Solvelt.Application.Organizers.Commands.RegisterOrganizer;
+namespace SolveIt.Application.Organizers.Commands.RegisterOrganizer;
 
 public sealed record RegisterOrganizerCommand(
     string Name,

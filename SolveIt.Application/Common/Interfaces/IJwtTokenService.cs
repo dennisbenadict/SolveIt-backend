@@ -1,7 +1,7 @@
-﻿using Solvelt.Domain.Organizers;
-using Solvelt.Application.Organizers.Commands.LoginOrganizer;
+using SolveIt.Domain.Organizers;
+using SolveIt.Application.Organizers.Commands.LoginOrganizer;
 
-namespace Solvelt.Application.Common.Interfaces;
+namespace SolveIt.Application.Common.Interfaces;
 
 public interface IJwtTokenService
 {

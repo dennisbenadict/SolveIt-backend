@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Solvelt.Domain.Submissions
+namespace SolveIt.Domain.Submissions
 {
 //What is a GUID (instead of int)?
 
