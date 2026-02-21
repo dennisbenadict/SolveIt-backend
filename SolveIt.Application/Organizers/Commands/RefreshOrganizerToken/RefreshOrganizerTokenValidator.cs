@@ -1,9 +1,10 @@
 ﻿using FluentValidation;
+using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 
 namespace Solvelt.Application.Organizers.Commands.RefreshOrganizerToken;
 
 public sealed class RefreshOrganizerTokenValidator
-    : AbstractValidator<RefreshOrganizerTokenCommand>
+    : AbstractValidator<RefreshTokenRequestDto>
 {
     public RefreshOrganizerTokenValidator()
     {

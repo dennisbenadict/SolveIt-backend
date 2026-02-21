@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 namespace SolveIt.Application.Organizers.Commands.RequestPasswordReset
 {
     public sealed record RequestPasswordResetCommand(string Email)
-        : IRequest<string>;
+        : IRequest<Unit>;
 }

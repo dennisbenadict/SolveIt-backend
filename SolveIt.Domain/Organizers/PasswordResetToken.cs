@@ -1,4 +1,6 @@
-﻿public sealed class PasswordResetToken
+﻿using SolveIt.Domain.Exceptions;
+
+public sealed class PasswordResetToken
 {
     public Guid Id { get; private set; }
     public Guid OrganizerId { get; private set; }
@@ -25,15 +27,25 @@
         string tokenHash,
         DateTime expiresAtUtc)
     {
+        if (expiresAtUtc <= DateTime.UtcNow)
+            throw new InvalidPasswordResetExpiryException();
+
         return new PasswordResetToken(
             organizerId,
             tokenHash,
             expiresAtUtc);
     }
 
-    public void MarkAsUsed()
+    public void Use()
     {
+        if (IsUsed)
+            throw new PasswordResetTokenAlreadyUsedException();
+
+        if (DateTime.UtcNow > ExpiresAtUtc)
+            throw new PasswordResetTokenExpiredException();
+
         IsUsed = true;
     }
 }
+
 

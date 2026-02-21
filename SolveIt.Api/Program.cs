@@ -100,7 +100,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SolveIt.Application.Interfaces;
 using SolveIt.Infrastructure.Persistence;
+using SolveIt.Infrastructure.Repositories;
 using Solvelt.Api.Middleware;
 using Solvelt.Application.Common.Interfaces;
 using Solvelt.Application.Interfaces;
@@ -167,6 +169,8 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 // Repositories
 builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+
 
 // JWT Configuration
 var jwtSection = builder.Configuration.GetSection("Jwt");

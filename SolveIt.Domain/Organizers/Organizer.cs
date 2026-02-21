@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SolveIt.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,16 +37,16 @@ public sealed class Organizer
         string passwordHash)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name required");
+            throw new NameRequiredException();
 
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email required");
+            throw new EmailRequiredException();
 
         if (string.IsNullOrWhiteSpace(phoneNumber))
-            throw new ArgumentException("Phone required");
+            throw new PhoneNumberRequiredException();
 
         if (string.IsNullOrWhiteSpace(passwordHash))
-            throw new ArgumentException("Password required");
+            throw new PasswordHashRequiredException();
 
 
         return new Organizer(
@@ -56,6 +57,14 @@ public sealed class Organizer
             passwordHash,
             "local"
         );
+    }
+
+    public void UpdatePassword(string newPasswordHash)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+            throw new InvalidPasswordHashException();
+
+        PasswordHash = newPasswordHash;
     }
 }
 

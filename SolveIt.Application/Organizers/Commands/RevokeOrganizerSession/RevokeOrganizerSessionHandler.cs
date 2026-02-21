@@ -26,6 +26,10 @@ namespace SolveIt.Application.Organizers.Commands.RevokeOrganizerSession
             RevokeOrganizerSessionCommand request,
             CancellationToken cancellationToken)
         {
+            // Guard clause (fail silently)
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+                return Unit.Value;
+
             var hashedToken =
                 _jwtTokenService.HashRefreshToken(request.RefreshToken);
 
@@ -39,7 +43,6 @@ namespace SolveIt.Application.Organizers.Commands.RevokeOrganizerSession
                 await _refreshTokenRepository
                     .SaveChangesAsync(cancellationToken);
             }
-
             return Unit.Value;
         }
     }

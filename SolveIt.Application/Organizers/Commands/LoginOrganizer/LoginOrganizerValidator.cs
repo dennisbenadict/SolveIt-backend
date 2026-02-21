@@ -1,11 +1,12 @@
 ﻿using FluentValidation;
+using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 namespace Solvelt.Application.Organizers.Commands.LoginOrganizer;
 
 public sealed class LoginOrganizerValidator
-    : AbstractValidator<LoginOrganizerCommand>
+    : AbstractValidator<LoginOrganizerRequestDto>
 {
     private static readonly Regex IndianPhoneRegex =
         new(@"^(?:\+91|91)?[6-9]\d{9}$", RegexOptions.Compiled);
