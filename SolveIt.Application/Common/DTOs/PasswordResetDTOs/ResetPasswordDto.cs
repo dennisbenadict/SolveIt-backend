@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace SolveIt.Application.Common.DTOs.PasswordResetDTOs
 {
-    public sealed record ResetPasswordRequest(
+    public sealed record ResetPasswordDto(
         string Token,
         string NewPassword,
         string ConfirmPassword);
-
 }

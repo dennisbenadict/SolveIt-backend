@@ -25,9 +25,11 @@ public sealed class RequestPasswordResetHandler
         RequestPasswordResetCommand request,
         CancellationToken cancellationToken)
     {
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
         var organizer =
             await _organizerRepository
-                .GetByEmailAsync(request.Email, cancellationToken);
+                .GetByEmailAsync(normalizedEmail, cancellationToken);
 
         // No user enumeration
         if (organizer is null)
@@ -39,7 +41,7 @@ public sealed class RequestPasswordResetHandler
         var resetToken = PasswordResetToken.Create(
             organizer.Id,
             hashedToken,
-            DateTime.UtcNow.AddMinutes(30));
+            DateTime.UtcNow.AddMinutes(15));
 
         await _passwordResetTokenRepository
             .AddAsync(resetToken, cancellationToken);

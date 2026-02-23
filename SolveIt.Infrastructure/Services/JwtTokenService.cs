@@ -35,12 +35,19 @@ public sealed class JwtTokenService : IJwtTokenService
             key,
             SecurityAlgorithms.HmacSha256);
 
+        //var claims = new[]
+        //{
+        //    new Claim(JwtClaimNames.Sub, organizer.Id.ToString()),
+        //    new Claim(JwtClaimNames.Email, organizer.Email),
+        //    new Claim("name", organizer.Name)
+        //};
+
         var claims = new[]
-        {
-            new Claim(JwtClaimNames.Sub, organizer.Id.ToString()),
-            new Claim(JwtClaimNames.Email, organizer.Email),
-            new Claim("name", organizer.Name)
-        };
+          {
+              new Claim(ClaimTypes.NameIdentifier, organizer.Id.ToString()),
+              new Claim(ClaimTypes.Email, organizer.Email),
+              new Claim(ClaimTypes.Name, organizer.Name)
+          };
 
         var expiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes);
 

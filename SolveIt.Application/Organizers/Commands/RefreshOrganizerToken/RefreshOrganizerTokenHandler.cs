@@ -29,6 +29,8 @@ public sealed class RefreshOrganizerTokenHandler
         RefreshOrganizerTokenCommand request,
         CancellationToken cancellationToken)
     {
+        var now = DateTime.UtcNow;
+
         // Hash incoming token
         var hashedToken =
             _jwtTokenService.HashRefreshToken(request.RefreshToken);
@@ -44,19 +46,24 @@ public sealed class RefreshOrganizerTokenHandler
         // Reuse detection
         if (storedToken.IsRevoked)
         {
-            await _refreshTokenRepository
-                .RevokeAllByOrganizerIdAsync(
-                    storedToken.OrganizerId,
-                    cancellationToken);
+            if (storedToken.ReplacedByTokenId is not null)
+            {
+                await _refreshTokenRepository
+                    .RevokeAllByOrganizerIdAsync(
+                        storedToken.OrganizerId,
+                        cancellationToken);
 
-            await _refreshTokenRepository
-                .SaveChangesAsync(cancellationToken);
+                await _refreshTokenRepository
+                    .SaveChangesAsync(cancellationToken);
 
-            throw new RefreshTokenReuseDetectedException();
+                throw new RefreshTokenReuseDetectedException();
+            }
+
+            throw new InvalidCredentialsException();
         }
 
         // Expiry check
-        if (storedToken.ExpiresAtUtc <= DateTime.UtcNow)
+        if (storedToken.ExpiresAtUtc <= now)
             throw new InvalidCredentialsException();
 
         // Load organizer
@@ -66,9 +73,6 @@ public sealed class RefreshOrganizerTokenHandler
 
         if (organizer is null)
             throw new InvalidCredentialsException();
-
-        // Rotate (revoke old)
-        storedToken.Revoke();
 
         // Generate new tokens
         var newAccessToken =
@@ -84,7 +88,10 @@ public sealed class RefreshOrganizerTokenHandler
             RefreshToken.Create(
                 organizer.Id,
                 newHashedToken,
-                DateTime.UtcNow.AddDays(7));
+                now.AddDays(7));
+
+        // Rotate properly
+        storedToken.Revoke(newRefreshToken.Id);
 
         await _refreshTokenRepository
             .AddAsync(newRefreshToken, cancellationToken);

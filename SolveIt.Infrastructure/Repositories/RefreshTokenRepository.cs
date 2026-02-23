@@ -29,16 +29,27 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
     Guid organizerId,
     CancellationToken cancellationToken)
     {
+        var now = DateTime.UtcNow;
         await _dbContext.RefreshTokens
             .Where(x => x.OrganizerId == organizerId && !x.IsRevoked)
-            .ExecuteUpdateAsync(
-                s => s.SetProperty(p => p.IsRevoked, true),
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.IsRevoked, true)
+                .SetProperty(x => x.RevokedAtUtc, now),
                 cancellationToken);
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<List<RefreshToken>> GetActiveTokensByOrganizerIdAsync(
+    Guid organizerId,
+    CancellationToken cancellationToken)
+    {
+        return await _dbContext.RefreshTokens
+            .Where(x => x.OrganizerId == organizerId && !x.IsRevoked)
+            .ToListAsync(cancellationToken);
     }
 }
 

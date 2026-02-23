@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using SolveIt.Infrastructure.Persistence;
+using Npgsql;
 using SolveIt.Application.Interfaces;
+using SolveIt.Application.Organizers.Exceptions;
 using SolveIt.Domain.Organizers;
+using SolveIt.Infrastructure.Persistence;
 
 namespace SolveIt.Infrastructure.Repositories;
 
@@ -14,12 +16,39 @@ public sealed class OrganizerRepository : IOrganizerRepository
         _dbContext = dbContext;
     }
 
+    //public async Task AddAsync(
+    //    Organizer organizer,
+    //    CancellationToken cancellationToken)
+    //{
+    //    await _dbContext.Organizers.AddAsync(organizer, cancellationToken);
+    //    await _dbContext.SaveChangesAsync(cancellationToken);
+    //}
+
     public async Task AddAsync(
-        Organizer organizer,
-        CancellationToken cancellationToken)
+    Organizer organizer,
+    CancellationToken cancellationToken)
     {
-        await _dbContext.Organizers.AddAsync(organizer, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.Organizers
+            .AddAsync(organizer, cancellationToken);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex)
+            when (ex.InnerException is PostgresException pg &&
+                  pg.SqlState == "23505")
+        {
+            var constraint = pg.ConstraintName;
+
+            if (constraint == "IX_organizers_email")
+                throw new EmailAlreadyExistsException();
+
+            if (constraint == "IX_organizers_phone_number")
+                throw new PhoneAlreadyExistsException();
+
+            throw;
+        }
     }
 
     public async Task<bool> ExistsByEmailAsync(

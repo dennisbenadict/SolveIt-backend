@@ -10,15 +10,18 @@ public sealed class ResetPasswordHandler
     private readonly IPasswordResetTokenRepository _passwordResetTokenRepository;
     private readonly IOrganizerRepository _organizerRepository;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
 
     public ResetPasswordHandler(
         IPasswordResetTokenRepository passwordResetTokenRepository,
         IOrganizerRepository organizerRepository,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IRefreshTokenRepository refreshTokenRepository)
     {
         _passwordResetTokenRepository = passwordResetTokenRepository;
         _organizerRepository = organizerRepository;
         _jwtTokenService = jwtTokenService;
+        _refreshTokenRepository = refreshTokenRepository;
     }
 
     public async Task<Unit> Handle(
@@ -35,7 +38,8 @@ public sealed class ResetPasswordHandler
             await _passwordResetTokenRepository
                 .GetByHashAsync(hashedToken, cancellationToken);
 
-        if (storedToken is null)
+        if (storedToken is null || storedToken.IsUsed ||
+            storedToken.ExpiresAtUtc < DateTime.UtcNow)
             throw new InvalidPasswordResetTokenException();
         storedToken.Use(); // Domain enforces expiry + reuse
 
@@ -51,6 +55,13 @@ public sealed class ResetPasswordHandler
 
         organizer.UpdatePassword(newPasswordHash);
 
+        // Kill all sessions after password change
+        await _refreshTokenRepository
+            .RevokeAllByOrganizerIdAsync(
+                organizer.Id,
+                cancellationToken);
+
+        // Save everything once
         await _passwordResetTokenRepository
             .SaveChangesAsync(cancellationToken);
 

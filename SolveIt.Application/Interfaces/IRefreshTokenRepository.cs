@@ -13,5 +13,9 @@ public interface IRefreshTokenRepository
     CancellationToken cancellationToken);
 
     Task SaveChangesAsync(CancellationToken cancellationToken);
+
+    Task<List<RefreshToken>> GetActiveTokensByOrganizerIdAsync(
+    Guid organizerId,
+    CancellationToken cancellationToken);
 }
 

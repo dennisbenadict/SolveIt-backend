@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SolveIt.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SolveIt.Infrastructure.Persistence;
 namespace SolveIt.Infrastructure.Migrations
 {
     [DbContext(typeof(SolveItDbContext))]
-    partial class SolveItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260223143550_AddRefreshTokenLineage")]
+    partial class AddRefreshTokenLineage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,12 +129,10 @@ namespace SolveIt.Infrastructure.Migrations
                         .HasColumnName("organizer_id");
 
                     b.Property<Guid?>("ReplacedByTokenId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("replaced_by_token_id");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("RevokedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("revoked_at_utc");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("TokenHash")
                         .IsRequired()
@@ -141,15 +142,8 @@ namespace SolveIt.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExpiresAtUtc")
-                        .HasDatabaseName("IX_refresh_tokens_expires_at_utc");
-
                     b.HasIndex("OrganizerId")
                         .HasDatabaseName("IX_refresh_tokens_organizer_id");
-
-                    b.HasIndex("ReplacedByTokenId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_refresh_tokens_replaced_by_token_id");
 
                     b.HasIndex("TokenHash")
                         .IsUnique()
@@ -165,11 +159,6 @@ namespace SolveIt.Infrastructure.Migrations
                         .HasForeignKey("OrganizerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("SolveIt.Domain.Organizers.RefreshToken", null)
-                        .WithOne()
-                        .HasForeignKey("SolveIt.Domain.Organizers.RefreshToken", "ReplacedByTokenId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

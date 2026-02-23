@@ -1,98 +1,3 @@
-//using FluentValidation;
-//using FluentValidation.AspNetCore;
-//using MediatR;
-//using Microsoft.EntityFrameworkCore;
-//using SolveIt.Infrastructure.Persistence;
-//using SolveIt.Api.Middleware;
-//using SolveIt.Application.Interfaces;
-//using SolveIt.Application.Organizers.Commands.RegisterOrganizer;
-//using SolveIt.Infrastructure.Repositories;
-//using SolveIt.Application.Common.Interfaces;
-//using SolveIt.Infrastructure.Services;
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
-//using Microsoft.IdentityModel.Tokens;
-//using System.Text;
-
-
-//var builder = WebApplication.CreateBuilder(args);
-
-//// Controllers
-//builder.Services.AddControllers();
-
-//// Swagger
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-
-//// DbContext
-//builder.Services.AddDbContext<SolveItDbContext>(options =>
-//    options.UseNpgsql(
-//        builder.Configuration.GetConnectionString("DefaultConnection")));
-
-//// MediatR
-//builder.Services.AddMediatR(cfg =>
-//    cfg.RegisterServicesFromAssembly(typeof(RegisterOrganizerHandler).Assembly));
-
-//// FluentValidation
-//builder.Services.AddFluentValidationAutoValidation();
-//builder.Services.AddValidatorsFromAssembly(typeof(RegisterOrganizerCommand).Assembly);
-
-//// JwtTokenService
-//builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
-
-//// Repositories
-//builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
-//builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
-
-//var jwtSection = builder.Configuration.GetSection("Jwt");
-//var secretKey = jwtSection["SecretKey"];
-
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(options =>
-//{
-//    options.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ValidateIssuerSigningKey = true,
-
-//        ValidIssuer = jwtSection["Issuer"],
-//        ValidAudience = jwtSection["Audience"],
-
-//        IssuerSigningKey = new SymmetricSecurityKey(
-//            Encoding.UTF8.GetBytes(secretKey!))
-//    };
-//});
-
-
-//var app = builder.Build();
-
-//// Pipeline
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseHttpsRedirection();
-
-//// Global Exception Handling Middleware
-//app.UseMiddleware<ExceptionMiddleware>();
-
-//app.UseAuthentication();
-//app.UseAuthorization();
-//app.MapControllers();
-
-//app.Run();
-
-
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -100,15 +5,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SolveIt.Application.Interfaces;
-using SolveIt.Infrastructure.Persistence;
-using SolveIt.Infrastructure.Repositories;
 using SolveIt.Api.Middleware;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
+using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Commands.RegisterOrganizer;
+using SolveIt.Infrastructure.Persistence;
+using SolveIt.Infrastructure.Repositories;
 using SolveIt.Infrastructure.Repositories;
 using SolveIt.Infrastructure.Services;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -194,7 +100,25 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSection["Audience"],
 
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(secretKey!))
+            Encoding.UTF8.GetBytes(secretKey!)),
+
+        NameClaimType = ClaimTypes.NameIdentifier,
+        RoleClaimType = ClaimTypes.Role,
+
+        ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["access_token"];
+
+            if (!string.IsNullOrEmpty(token))
+                context.Token = token;
+
+            return Task.CompletedTask;
+        }
     };
 });
 

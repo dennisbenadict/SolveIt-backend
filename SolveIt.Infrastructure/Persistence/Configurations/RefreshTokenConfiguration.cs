@@ -44,21 +44,44 @@ internal sealed class RefreshTokenConfiguration
             .IsUnique()
             .HasDatabaseName("IX_refresh_tokens_token_hash");
 
-        // Expiry
-        builder.Property(r => r.ExpiresAtUtc)
-            .HasColumnName("expires_at_utc")
-            .HasColumnType("timestamp with time zone")
-            .IsRequired();
-
         // Created At
         builder.Property(r => r.CreatedAtUtc)
             .HasColumnName("created_at_utc")
             .HasColumnType("timestamp with time zone")
             .IsRequired();
 
+        // Expiry
+        builder.Property(r => r.ExpiresAtUtc)
+            .HasColumnName("expires_at_utc")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired();
+
+        builder.HasIndex(r => r.ExpiresAtUtc)
+            .HasDatabaseName("IX_refresh_tokens_expires_at_utc");
+
         // Revoked flag
         builder.Property(r => r.IsRevoked)
             .HasColumnName("is_revoked")
             .IsRequired();
+
+        // Revoked At (nullable)
+        builder.Property(r => r.RevokedAtUtc)
+            .HasColumnName("revoked_at_utc")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired(false);
+
+        // Replaced By Token (nullable self-reference)
+        builder.Property(r => r.ReplacedByTokenId)
+            .HasColumnName("replaced_by_token_id")
+            .HasColumnType("uuid")
+            .IsRequired(false);
+
+        builder.HasIndex(r => r.ReplacedByTokenId)
+            .HasDatabaseName("IX_refresh_tokens_replaced_by_token_id");
+
+        builder.HasOne<RefreshToken>()
+            .WithOne()
+            .HasForeignKey<RefreshToken>(r => r.ReplacedByTokenId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

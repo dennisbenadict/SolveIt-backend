@@ -7,9 +7,11 @@ public sealed class RefreshToken
     public Guid Id { get; private set; }
     public Guid OrganizerId { get; private set; }
     public string TokenHash { get; private set; } = null!;
-    public DateTime ExpiresAtUtc { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
+    public DateTime ExpiresAtUtc { get; private set; }
     public bool IsRevoked { get; private set; }
+    public DateTime? RevokedAtUtc { get; private set; }
+    public Guid? ReplacedByTokenId { get; private set; }
 
     private RefreshToken() { } // EF Core
 
@@ -18,15 +20,13 @@ public sealed class RefreshToken
         Guid organizerId,
         string tokenHash,
         DateTime createdAtUtc,
-        DateTime expiresAtUtc,
-        bool isRevoked)
+        DateTime expiresAtUtc)
     {
         Id = id;
         OrganizerId = organizerId;
         TokenHash = tokenHash;
         CreatedAtUtc = createdAtUtc;
         ExpiresAtUtc = expiresAtUtc;
-        IsRevoked = isRevoked;
     }
 
     public static RefreshToken Create(
@@ -48,15 +48,18 @@ public sealed class RefreshToken
             organizerId,
             tokenHash,
             DateTime.UtcNow,
-            expiresAtUtc,
-            false
+            expiresAtUtc
         );
     }
 
-    public void Revoke()
+    public void Revoke(Guid? replacedByTokenId = null)
     {
-        if (!IsRevoked)
-            IsRevoked = true;
+        if (IsRevoked)
+            return;
+
+        IsRevoked = true;
+        RevokedAtUtc = DateTime.UtcNow;
+        ReplacedByTokenId = replacedByTokenId;
     }
 
     public bool IsExpired()
