@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using JwtClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace SolveIt.Infrastructure.Services;
 
@@ -46,7 +45,8 @@ public sealed class JwtTokenService : IJwtTokenService
           {
               new Claim(ClaimTypes.NameIdentifier, organizer.Id.ToString()),
               new Claim(ClaimTypes.Email, organizer.Email),
-              new Claim(ClaimTypes.Name, organizer.Name)
+              new Claim(ClaimTypes.Name, organizer.Name),
+              new Claim(ClaimTypes.Role, organizer.Role.ToString())
           };
 
         var expiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes);

@@ -1,3 +1,4 @@
+using SolveIt.Domain.Common;
 using SolveIt.Domain.Exceptions;
 
 namespace SolveIt.Domain.Organizers;
@@ -17,12 +18,13 @@ public sealed class Organizer
     public DateTime? LockoutEndUtc { get; private set; }
 
     public byte[] RowVersion { get; private set; } = null!;
+    public UserRole Role { get; private set; }
 
     private const int MaxFailedAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
     private Organizer() { } // EF Core only
 
-    private Organizer(Guid id, string name, string email, string phoneNumber, string passwordHash, string authProvider)
+    private Organizer(Guid id, string name, string email, string phoneNumber, string passwordHash, string authProvider, UserRole role)
     {
         Id = id;
         Name = name;
@@ -34,6 +36,7 @@ public sealed class Organizer
 
         FailedLoginAttempts = 0;
         LockoutEndUtc = null;
+        Role = role;
     }
 
     public static Organizer Create(
@@ -61,7 +64,8 @@ public sealed class Organizer
             email.Trim().ToLowerInvariant(),
             phoneNumber.Trim(),
             passwordHash,
-            "local"
+            "local",
+            UserRole.Organizer
         );
     }
 

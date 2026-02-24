@@ -77,6 +77,12 @@ namespace SolveIt.Infrastructure.Persistence.Configurations
                 .HasColumnName("row_version")
                 .IsRowVersion()
                 .IsConcurrencyToken();
+
+            // User Role
+            builder.Property(o => o.Role)
+                .HasColumnName("role")
+                .HasConversion<int>()
+                .IsRequired();
         }
     }
 }
