@@ -1,11 +1,13 @@
 using BCrypt.Net;
 using MediatR;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
+using SolveIt.Application.Common.Exceptions;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Exceptions;
 using SolveIt.Domain.Organizers;
-using System.Security.Authentication;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace SolveIt.Application.Organizers.Commands.LoginOrganizer;
 
@@ -15,15 +17,18 @@ public sealed class LoginOrganizerHandler
     private readonly IOrganizerRepository _repository;
     private readonly IJwtTokenService _jwtService;
     private readonly IRefreshTokenRepository _refreshRepository;
+    private readonly ILogger<LoginOrganizerHandler> _logger;
 
     public LoginOrganizerHandler(
         IOrganizerRepository repository,
         IJwtTokenService jwtService,
-        IRefreshTokenRepository refreshRepository)
+        IRefreshTokenRepository refreshRepository,
+        ILogger<LoginOrganizerHandler> logger)
     {
         _repository = repository;
         _jwtService = jwtService;
         _refreshRepository = refreshRepository;
+        _logger = logger;
     }
 
     public async Task<AuthResponseDto> Handle(
@@ -50,12 +55,33 @@ public sealed class LoginOrganizerHandler
         if (organizer is null)
             throw new InvalidCredentialsException();
 
+        // Account lockout check
+        if (organizer.IsLockedOut())
+            throw new AccountLockedException();
+
         var passwordValid = BCrypt.Net.BCrypt.Verify(
             request.Password,
             organizer.PasswordHash);
 
         if (!passwordValid)
+        {
+            organizer.RegisterFailedLogin();
+
+            try
+            {
+                await _refreshRepository.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning(ex, "Concurrency conflict during login for organizer {OrganizerId}", organizer.Id);
+                throw new InvalidCredentialsException();
+            }
+
             throw new InvalidCredentialsException();
+        }
+
+        // Successful login
+        organizer.RegisterSuccessfulLogin();
 
         // Generate tokens
         var accessToken = _jwtService.GenerateAccessToken(organizer);
@@ -66,12 +92,21 @@ public sealed class LoginOrganizerHandler
         var refreshEntity = RefreshToken.Create(
             organizer.Id,
             refreshTokenHash,
-            DateTime.UtcNow.AddDays(7) // production expiry
-        );
+            DateTime.UtcNow.AddDays(7)); // production expiry
 
         // Persist refresh token
         await _refreshRepository.AddAsync(refreshEntity, cancellationToken);
-        await _refreshRepository.SaveChangesAsync(cancellationToken);
+
+        // Save all changes once (organizer + refresh token)
+        try
+        {
+            await _refreshRepository.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "Concurrency conflict during refresh token creation for organizer {OrganizerId}", organizer.Id);
+            throw new InvalidCredentialsException();
+        }
 
         // TODO: Save refreshTokenHash in DB (next step)
 

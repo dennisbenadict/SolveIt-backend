@@ -1,5 +1,6 @@
 using BCrypt.Net;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SolveIt.Application.Common.Exceptions;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
@@ -62,8 +63,15 @@ public sealed class ResetPasswordHandler
                 cancellationToken);
 
         // Save everything once
-        await _passwordResetTokenRepository
-            .SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _passwordResetTokenRepository
+                .SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new InvalidPasswordResetTokenException();
+        }
 
         return Unit.Value;
     }

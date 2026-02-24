@@ -26,5 +26,10 @@ public sealed class PasswordResetTokenConfiguration
             .IsUnique();
 
         builder.HasIndex(x => x.OrganizerId);
+
+        builder.Property(x => x.CreatedAtUtc)
+            .HasColumnName("created_at_utc")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired();
     }
 }

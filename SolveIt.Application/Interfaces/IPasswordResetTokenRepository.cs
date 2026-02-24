@@ -11,6 +11,11 @@ namespace SolveIt.Application.Interfaces
         Task AddAsync(PasswordResetToken token, CancellationToken ct);
         Task<PasswordResetToken?> GetByHashAsync(string hash, CancellationToken ct);
         Task SaveChangesAsync(CancellationToken ct);
+        Task RevokeActiveTokensAsync(Guid organizerId, CancellationToken ct);
+        Task<int> CountRecentRequestsAsync(
+            Guid organizerId,
+            DateTime since,
+            CancellationToken ct);
     }
 
 }

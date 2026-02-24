@@ -61,6 +61,22 @@ namespace SolveIt.Infrastructure.Persistence.Configurations
                 .HasColumnName("created_at")
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
+
+            // Failed Login Attempts
+            builder.Property(o => o.FailedLoginAttempts)
+                .HasColumnName("failed_login_attempts")
+                .IsRequired();
+
+            builder.Property(o => o.LockoutEndUtc)
+                .HasColumnName("lockout_end_utc")
+                .HasColumnType("timestamp with time zone")
+                .IsRequired(false);
+
+            // Row Version for Concurrency
+            builder.Property(o => o.RowVersion)
+                .HasColumnName("row_version")
+                .IsRowVersion()
+                .IsConcurrencyToken();
         }
     }
 }

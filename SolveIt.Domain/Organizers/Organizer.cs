@@ -1,9 +1,4 @@
 using SolveIt.Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SolveIt.Domain.Organizers;
 
@@ -17,6 +12,14 @@ public sealed class Organizer
     public string AuthProvider { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; }
 
+    // Account Lockout Properties
+    public int FailedLoginAttempts { get; private set; }
+    public DateTime? LockoutEndUtc { get; private set; }
+
+    public byte[] RowVersion { get; private set; } = null!;
+
+    private const int MaxFailedAttempts = 5;
+    private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
     private Organizer() { } // EF Core only
 
     private Organizer(Guid id, string name, string email, string phoneNumber, string passwordHash, string authProvider)
@@ -28,6 +31,9 @@ public sealed class Organizer
         PasswordHash = passwordHash;
         AuthProvider = authProvider;
         CreatedAt = DateTime.UtcNow;
+
+        FailedLoginAttempts = 0;
+        LockoutEndUtc = null;
     }
 
     public static Organizer Create(
@@ -51,9 +57,9 @@ public sealed class Organizer
 
         return new Organizer(
             Guid.NewGuid(),
-            email.Trim().ToLowerInvariant(),
             name.Trim(),
-            phoneNumber,
+            email.Trim().ToLowerInvariant(),
+            phoneNumber.Trim(),
             passwordHash,
             "local"
         );
@@ -65,6 +71,43 @@ public sealed class Organizer
             throw new InvalidPasswordHashException();
 
         PasswordHash = newPasswordHash;
+    }
+
+    // Register failed login attempt
+    public void RegisterFailedLogin()
+    {
+        if (IsLockedOut())
+            return;
+
+        FailedLoginAttempts++;
+
+        if (FailedLoginAttempts >= MaxFailedAttempts)
+        {
+            LockoutEndUtc = DateTime.UtcNow.Add(LockoutDuration);
+            FailedLoginAttempts = 0;
+        }
+    }
+
+    // Register successful login
+    public void RegisterSuccessfulLogin()
+    {
+        FailedLoginAttempts = 0;
+        LockoutEndUtc = null;
+    }
+
+    // Check lockout state
+    public bool IsLockedOut()
+    {
+        if (LockoutEndUtc is null)
+            return false;
+
+        if (LockoutEndUtc <= DateTime.UtcNow)
+        {
+            LockoutEndUtc = null;
+            return false;
+        }
+
+        return true;
     }
 }
 

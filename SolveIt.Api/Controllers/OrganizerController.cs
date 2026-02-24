@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using SolveIt.Api.Common.Extensions;
 using SolveIt.Api.Contracts;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Common.DTOs.PasswordResetDTOs;
@@ -13,7 +15,6 @@ using SolveIt.Application.Organizers.Commands.RevokeAllSessions;
 using SolveIt.Application.Organizers.Commands.RevokeOrganizerSession;
 using System.Net;
 using System.Security.Claims;
-using SolveIt.Api.Common.Extensions;
 
 namespace SolveIt.Api.Controllers;
 
@@ -28,6 +29,7 @@ public sealed class OrganizerController : ControllerBase
         _mediator = mediator;
     }
 
+    [EnableRateLimiting("AuthModeratePolicy")]
     [HttpPost]
     public async Task<ActionResult<ApiResponse<Guid>>> Register(
         [FromBody] RegisterOrganizerRequestDto request,
@@ -51,6 +53,7 @@ public sealed class OrganizerController : ControllerBase
         return StatusCode((int)HttpStatusCode.Created, response);
     }
 
+    [EnableRateLimiting("AuthLoginPolicy")]
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse<AuthResponseDto>>> Login(
         [FromBody] LoginOrganizerRequestDto request,
@@ -87,11 +90,12 @@ public sealed class OrganizerController : ControllerBase
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
-        return Ok(ApiResponse<string>.Success(
+        return Ok(ApiResponse<string?>.Success(
             null,
             "Login successful"));
     }
 
+    [EnableRateLimiting("AuthRefreshPolicy")]
     [HttpPost("refresh")]
     public async Task<ActionResult<ApiResponse<string>>> Refresh(
         CancellationToken cancellationToken)
@@ -132,11 +136,12 @@ public sealed class OrganizerController : ControllerBase
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
-        return Ok(ApiResponse<string>.Success(
+        return Ok(ApiResponse<string?>.Success(
             null,
             "Token refreshed successfully."));
     }
 
+    [EnableRateLimiting("AuthModeratePolicy")]
     [HttpPost("logout")]
     public async Task<ActionResult<ApiResponse<string>>> Logout(
         CancellationToken cancellationToken)
@@ -155,11 +160,12 @@ public sealed class OrganizerController : ControllerBase
         Response.Cookies.Delete("access_token");
         Response.Cookies.Delete("refresh_token");
 
-        return Ok(ApiResponse<string>.Success(
+        return Ok(ApiResponse<string?>.Success(
             null,
             "Logged out successfully."));
     }
 
+    [EnableRateLimiting("AuthReadPolicy")]
     [Authorize]
     [HttpGet("me")]
     public ActionResult<ApiResponse<OrganizerProfileDto>> Me()
@@ -179,6 +185,7 @@ public sealed class OrganizerController : ControllerBase
             "Profile retrieved successfully."));
     }
 
+    [EnableRateLimiting("AuthPasswordResetPolicy")]
     [HttpPost("request-password-reset")]
     public async Task<ActionResult<ApiResponse<string>>> RequestPasswordReset(
         [FromBody] RequestPasswordResetDto request,
@@ -188,11 +195,12 @@ public sealed class OrganizerController : ControllerBase
             new RequestPasswordResetCommand(request.Email),
             cancellationToken);
 
-        return Ok(ApiResponse<string>.Success(
+        return Ok(ApiResponse<string?>.Success(
             null,
             "If the email exists, a password reset link has been sent."));
     }
 
+    [EnableRateLimiting("AuthPasswordResetPolicy")]
     [HttpPost("reset-password")]
     public async Task<ActionResult<ApiResponse<string>>> ResetPassword(
         [FromBody] ResetPasswordDto request,
@@ -205,11 +213,12 @@ public sealed class OrganizerController : ControllerBase
                 request.ConfirmPassword),
             cancellationToken);
 
-        return Ok(ApiResponse<string>.Success(
+        return Ok(ApiResponse<string?>.Success(
             null,
             "Password reset successfully."));
     }
 
+    [EnableRateLimiting("AuthModeratePolicy")]
     [Authorize]
     [HttpPost("revoke-all")]
     public async Task<ActionResult<ApiResponse<string>>> RevokeAll(
@@ -221,7 +230,7 @@ public sealed class OrganizerController : ControllerBase
             new RevokeAllSessionsCommand(organizerId),
             cancellationToken);
 
-        return Ok(ApiResponse<string>.Success(
+        return Ok(ApiResponse<string?>.Success(
             null,
             "All sessions revoked successfully."));
     }

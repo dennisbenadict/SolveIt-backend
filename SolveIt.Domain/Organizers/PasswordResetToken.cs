@@ -5,6 +5,7 @@ public sealed class PasswordResetToken
     public Guid Id { get; private set; }
     public Guid OrganizerId { get; private set; }
     public string TokenHash { get; private set; } = default!;
+    public DateTime CreatedAtUtc { get; private set; }
     public DateTime ExpiresAtUtc { get; private set; }
     public bool IsUsed { get; private set; }
 
@@ -13,11 +14,13 @@ public sealed class PasswordResetToken
     private PasswordResetToken(
         Guid organizerId,
         string tokenHash,
+        DateTime createdAtUtc,
         DateTime expiresAtUtc)
     {
         Id = Guid.NewGuid();
         OrganizerId = organizerId;
         TokenHash = tokenHash;
+        CreatedAtUtc = createdAtUtc;
         ExpiresAtUtc = expiresAtUtc;
         IsUsed = false;
     }
@@ -33,6 +36,7 @@ public sealed class PasswordResetToken
         return new PasswordResetToken(
             organizerId,
             tokenHash,
+            DateTime.UtcNow,
             expiresAtUtc);
     }
 

@@ -35,6 +35,20 @@ public sealed class RequestPasswordResetHandler
         if (organizer is null)
             return Unit.Value;
 
+        // Throttle per email (if implemented)
+        var recentCount = await _passwordResetTokenRepository
+            .CountRecentRequestsAsync(
+                organizer.Id,
+                DateTime.UtcNow.AddMinutes(-10),
+                cancellationToken);
+
+        if (recentCount >= 3)
+            return Unit.Value;
+
+        // Revoke existing active reset tokens
+        await _passwordResetTokenRepository
+            .RevokeActiveTokensAsync(organizer.Id, cancellationToken);
+
         var rawToken = _jwtTokenService.GenerateRefreshToken();
         var hashedToken = _jwtTokenService.HashRefreshToken(rawToken);
 

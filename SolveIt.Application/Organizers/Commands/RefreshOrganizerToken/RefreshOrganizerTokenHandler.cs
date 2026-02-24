@@ -74,6 +74,10 @@ public sealed class RefreshOrganizerTokenHandler
         if (organizer is null)
             throw new InvalidCredentialsException();
 
+        // Enforce lockout on refresh
+        if (organizer.IsLockedOut())
+            throw new AccountLockedException();
+
         // Generate new tokens
         var newAccessToken =
             _jwtTokenService.GenerateAccessToken(organizer);

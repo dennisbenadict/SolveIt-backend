@@ -2,20 +2,22 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SolveIt.Api.Contracts;
 using SolveIt.Api.Middleware;
 using SolveIt.Application.Common.Interfaces;
-using SolveIt.Application.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Commands.RegisterOrganizer;
 using SolveIt.Infrastructure.Persistence;
 using SolveIt.Infrastructure.Repositories;
-using SolveIt.Infrastructure.Repositories;
 using SolveIt.Infrastructure.Services;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +79,78 @@ builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 
+// Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+
+        await context.HttpContext.Response.WriteAsJsonAsync(
+        ApiResponse<string>.Fail(
+            new[] { "Too many requests. Please try again later." },
+            "Rate limit exceeded",
+            HttpStatusCode.TooManyRequests),
+        cancellationToken: token);
+    };
+
+    // Login
+    options.AddPolicy("AuthLoginPolicy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    // Refresh
+    options.AddPolicy("AuthRefreshPolicy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    // Password Reset Request
+    options.AddPolicy("AuthPasswordResetPolicy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0
+            }));
+
+    // Register / Revoke / Logout
+    options.AddPolicy("AuthModeratePolicy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    // Me 
+    options.AddPolicy("AuthReadPolicy", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+});
 
 // JWT Configuration
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -122,6 +196,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// If using Api Gateway or behind a reverse proxy, enable forwarded headers
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    // In production, restrict this to known proxy IPs
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
 
 // Swagger UI
@@ -131,10 +217,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Enable forwarded headers middleware
+app.UseForwardedHeaders();
+
 app.UseHttpsRedirection();
 
 // Global Exception Handling
 app.UseMiddleware<ExceptionMiddleware>();
+
+// Rate Limiting
+app.UseRateLimiter();
 
 // Authentication & Authorization
 app.UseAuthentication();
