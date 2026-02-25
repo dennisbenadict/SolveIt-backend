@@ -36,8 +36,8 @@ public sealed class OrganizerController : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new RegisterOrganizerCommand(
-            request.Email,
             request.Name,
+            request.Email,
             request.PhoneNumber,
             request.Password,
             request.ConfirmPassword);
@@ -166,7 +166,7 @@ public sealed class OrganizerController : ControllerBase
     }
 
     [EnableRateLimiting("AuthReadPolicy")]
-    [Authorize]
+    [Authorize(Roles = "Organizer")]
     [HttpGet("me")]
     public ActionResult<ApiResponse<OrganizerProfileDto>> Me()
     {
@@ -219,7 +219,7 @@ public sealed class OrganizerController : ControllerBase
     }
 
     [EnableRateLimiting("AuthModeratePolicy")]
-    [Authorize]
+    [Authorize(Roles = "Organizer")]
     [HttpPost("revoke-all")]
     public async Task<ActionResult<ApiResponse<string>>> RevokeAll(
     CancellationToken cancellationToken)

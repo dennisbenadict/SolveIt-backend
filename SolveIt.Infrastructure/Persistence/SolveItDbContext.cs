@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-//using SolveIt.Domain.Participants;
 //using SolveIt.Domain.Submissions;
 //using SolveIt.Domain.Tournaments;
 using SolveIt.Domain.Organizers;
+using SolveIt.Domain.Participants;
 
 namespace SolveIt.Infrastructure.Persistence
 {
@@ -17,8 +17,7 @@ namespace SolveIt.Infrastructure.Persistence
         public DbSet<Organizer> Organizers => Set<Organizer>();
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
-
-        //public DbSet<Participant> Participants => Set<Participant>();
+        public DbSet<Participant> Participants { get; set; } = null!;
         //public DbSet<Tournament> Tournaments => Set<Tournament>();
         //public DbSet<Submission> Submissions => Set<Submission>();
 

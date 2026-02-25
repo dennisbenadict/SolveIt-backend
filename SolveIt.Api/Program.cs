@@ -78,6 +78,7 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
 
 // Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -152,6 +153,8 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+builder.Services.AddScoped<JwtEventsHandler>();
+
 // JWT Configuration
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSection["SecretKey"];
@@ -194,6 +197,8 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
+
+    options.EventsType = typeof(JwtEventsHandler);
 });
 
 // If using Api Gateway or behind a reverse proxy, enable forwarded headers
