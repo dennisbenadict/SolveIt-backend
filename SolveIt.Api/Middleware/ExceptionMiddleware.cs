@@ -2,7 +2,7 @@ using SolveIt.Application.Common.Exceptions;
 using SolveIt.Api.Contracts;
 using SolveIt.Domain.Exceptions;
 using System.Net;
-
+using FluentValidation;
 namespace SolveIt.Api.Middleware;
 
 public sealed class ExceptionMiddleware
@@ -23,6 +23,11 @@ public sealed class ExceptionMiddleware
         try
         {
             await _next(context);
+        }
+        // FluentValidation exceptions
+        catch (ValidationException ex)
+        {
+            await HandleValidationAsync(context, ex);
         }
         // Application-level exceptions
         catch (SolveIt.Application.Common.Exceptions.DomainException ex)
@@ -58,6 +63,29 @@ public sealed class ExceptionMiddleware
             new List<string> { message },
             "Request failed",
             statusCode);
+
+        await context.Response.WriteAsJsonAsync(response);
+    }
+
+    private static async Task HandleValidationAsync(
+    HttpContext context,
+    ValidationException ex)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+        var errors = ex.Errors
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).ToArray());
+
+        var response = ApiResponse<object>.Fail(
+            errors
+                .SelectMany(kvp => kvp.Value)
+                .ToList(),
+            "Validation failed",
+            HttpStatusCode.BadRequest);
 
         await context.Response.WriteAsJsonAsync(response);
     }

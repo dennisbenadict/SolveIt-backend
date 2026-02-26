@@ -1,41 +1,44 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Common.Exceptions;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Exceptions;
+using SolveIt.Domain.Common;
 using SolveIt.Domain.Organizers;
 
-namespace SolveIt.Application.Organizers.Commands.RefreshOrganizerToken;
+namespace SolveIt.Application.Auth.Commands;
 
-public sealed class RefreshOrganizerTokenHandler
-    : IRequestHandler<RefreshOrganizerTokenCommand, AuthResponseDto>
+public sealed class RefreshTokenHandler
+    : IRequestHandler<RefreshTokenCommand, AuthResponseDto>
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IOrganizerRepository _organizerRepository;
+    private readonly IParticipantRepository _participantRepository;
     private readonly IJwtTokenService _jwtTokenService;
 
-    public RefreshOrganizerTokenHandler(
+    public RefreshTokenHandler(
         IRefreshTokenRepository refreshTokenRepository,
         IOrganizerRepository organizerRepository,
+        IParticipantRepository participantRepository,
         IJwtTokenService jwtTokenService)
     {
         _refreshTokenRepository = refreshTokenRepository;
         _organizerRepository = organizerRepository;
+        _participantRepository = participantRepository;
         _jwtTokenService = jwtTokenService;
     }
 
     public async Task<AuthResponseDto> Handle(
-        RefreshOrganizerTokenCommand request,
+        RefreshTokenCommand request,
         CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
 
-        // Hash incoming token
         var hashedToken =
             _jwtTokenService.HashRefreshToken(request.RefreshToken);
 
-        // Find stored token
         var storedToken =
             await _refreshTokenRepository
                 .GetByHashAsync(hashedToken, cancellationToken);
@@ -43,14 +46,13 @@ public sealed class RefreshOrganizerTokenHandler
         if (storedToken is null)
             throw new InvalidCredentialsException();
 
-        // Reuse detection
         if (storedToken.IsRevoked)
         {
             if (storedToken.ReplacedByTokenId is not null)
             {
                 await _refreshTokenRepository
                     .RevokeAllByOrganizerIdAsync(
-                        storedToken.OrganizerId,
+                        storedToken.UserId,
                         cancellationToken);
 
                 await _refreshTokenRepository
@@ -62,25 +64,50 @@ public sealed class RefreshOrganizerTokenHandler
             throw new InvalidCredentialsException();
         }
 
-        // Expiry check
         if (storedToken.ExpiresAtUtc <= now)
             throw new InvalidCredentialsException();
 
-        // Load organizer
+        Guid userId = storedToken.UserId;
+        string email;
+        string name;
+        UserRole role;
+
         var organizer =
             await _organizerRepository
-                .GetByIdAsync(storedToken.OrganizerId, cancellationToken);
+                .GetByIdAsync(userId, cancellationToken);
 
-        if (organizer is null)
-            throw new InvalidCredentialsException();
+        if (organizer is not null)
+        {
+            if (organizer.IsLockedOut())
+                throw new AccountLockedException();
 
-        // Enforce lockout on refresh
-        if (organizer.IsLockedOut())
-            throw new AccountLockedException();
+            email = organizer.Email;
+            name = organizer.Name;
+            role = organizer.Role;
+        }
+        else
+        {
+            var participant =
+                await _participantRepository
+                    .GetByIdAsync(userId, cancellationToken);
 
-        // Generate new tokens
+            if (participant is null)
+                throw new InvalidCredentialsException();
+
+            if (participant.IsLockedOut())
+                throw new AccountLockedException();
+
+            email = participant.Email;
+            name = participant.Name;
+            role = participant.Role;
+        }
+
         var newAccessToken =
-            _jwtTokenService.GenerateAccessToken(organizer);
+            _jwtTokenService.GenerateAccessToken(
+                userId,
+                email,
+                name,
+                role);
 
         var rawRefreshToken =
             _jwtTokenService.GenerateRefreshToken();
@@ -90,22 +117,28 @@ public sealed class RefreshOrganizerTokenHandler
 
         var newRefreshToken =
             RefreshToken.Create(
-                organizer.Id,
+                userId,
                 newHashedToken,
                 now.AddDays(7));
 
-        // Rotate properly
         storedToken.Revoke(newRefreshToken.Id);
 
         await _refreshTokenRepository
             .AddAsync(newRefreshToken, cancellationToken);
 
-        // Save once
-        await _refreshTokenRepository
-            .SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _refreshTokenRepository
+                .SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new InvalidCredentialsException();
+        }
 
         return new AuthResponseDto(
             newAccessToken,
             rawRefreshToken);
     }
 }
+

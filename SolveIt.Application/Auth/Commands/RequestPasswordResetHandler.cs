@@ -1,24 +1,37 @@
-using MediatR;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
-using SolveIt.Application.Organizers.Commands.RequestPasswordReset;
 using SolveIt.Domain.Organizers;
+using SolveIt.Domain.Participants;
+
+namespace SolveIt.Application.Auth.Commands;
 
 public sealed class RequestPasswordResetHandler
     : IRequestHandler<RequestPasswordResetCommand, Unit>
 {
     private readonly IOrganizerRepository _organizerRepository;
+    private readonly IParticipantRepository _participantRepository;
     private readonly IPasswordResetTokenRepository _passwordResetTokenRepository;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<RequestPasswordResetHandler> _logger;
 
     public RequestPasswordResetHandler(
         IOrganizerRepository organizerRepository,
+        IParticipantRepository participantRepository,
         IPasswordResetTokenRepository passwordResetTokenRepository,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IUnitOfWork unitOfWork,
+        ILogger<RequestPasswordResetHandler> logger)
     {
         _organizerRepository = organizerRepository;
+        _participantRepository = participantRepository;
         _passwordResetTokenRepository = passwordResetTokenRepository;
         _jwtTokenService = jwtTokenService;
+        _unitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<Unit> Handle(
@@ -27,46 +40,57 @@ public sealed class RequestPasswordResetHandler
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
-        var organizer =
-            await _organizerRepository
+        var organizer = await _organizerRepository
+            .GetByEmailAsync(normalizedEmail, cancellationToken);
+
+        Guid userId;
+
+        if (organizer is not null)
+        {
+            userId = organizer.Id;
+        }
+        else
+        {
+            var participant = await _participantRepository
                 .GetByEmailAsync(normalizedEmail, cancellationToken);
 
-        // No user enumeration
-        if (organizer is null)
-            return Unit.Value;
+            if (participant is null)
+                return Unit.Value;
 
-        // Throttle per email (if implemented)
+            userId = participant.Id;
+        }
+
         var recentCount = await _passwordResetTokenRepository
             .CountRecentRequestsAsync(
-                organizer.Id,
+                userId,
                 DateTime.UtcNow.AddMinutes(-10),
                 cancellationToken);
 
         if (recentCount >= 3)
-            return Unit.Value;
+        {
+            _logger.LogWarning(
+                "Password reset throttled for user {UserId}",
+                userId);
 
-        // Revoke existing active reset tokens
+            return Unit.Value;
+        }
+
         await _passwordResetTokenRepository
-            .RevokeActiveTokensAsync(organizer.Id, cancellationToken);
+            .RevokeActiveTokensAsync(userId, cancellationToken);
 
         var rawToken = _jwtTokenService.GenerateRefreshToken();
         var hashedToken = _jwtTokenService.HashRefreshToken(rawToken);
 
         var resetToken = PasswordResetToken.Create(
-            organizer.Id,
+            userId,
             hashedToken,
             DateTime.UtcNow.AddMinutes(15));
 
         await _passwordResetTokenRepository
             .AddAsync(resetToken, cancellationToken);
 
-        await _passwordResetTokenRepository
-            .SaveChangesAsync(cancellationToken);
-
-        // In production: send email
-        // For now: log it or temporarily return it if needed
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }
 }
-

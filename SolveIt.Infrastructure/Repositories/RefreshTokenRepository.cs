@@ -31,7 +31,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
     {
         var now = DateTime.UtcNow;
         await _dbContext.RefreshTokens
-            .Where(x => x.OrganizerId == organizerId && !x.IsRevoked)
+            .Where(x => x.UserId == organizerId && !x.IsRevoked)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(x => x.IsRevoked, true)
                 .SetProperty(x => x.RevokedAtUtc, now),
@@ -48,7 +48,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
     CancellationToken cancellationToken)
     {
         return await _dbContext.RefreshTokens
-            .Where(x => x.OrganizerId == organizerId && !x.IsRevoked)
+            .Where(x => x.UserId == organizerId && !x.IsRevoked)
             .ToListAsync(cancellationToken);
     }
 }

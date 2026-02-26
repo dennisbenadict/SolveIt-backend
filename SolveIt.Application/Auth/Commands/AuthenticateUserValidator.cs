@@ -1,17 +1,17 @@
-using FluentValidation;
-using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
+﻿using FluentValidation;
+using SolveIt.Application.Auth.Commands;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
-namespace SolveIt.Application.Organizers.Commands.LoginOrganizer;
+namespace SolveIt.Application.Auth.Validators;
 
-public sealed class LoginOrganizerValidator
-    : AbstractValidator<LoginOrganizerRequestDto>
+public sealed class AuthenticateUserValidator
+    : AbstractValidator<AuthenticateUserCommand>
 {
     private static readonly Regex IndianPhoneRegex =
         new(@"^(?:\+91|91)?[6-9]\d{9}$", RegexOptions.Compiled);
 
-    public LoginOrganizerValidator()
+    public AuthenticateUserValidator()
     {
         RuleFor(x => x.Identifier)
             .Cascade(CascadeMode.Stop)
@@ -31,12 +31,11 @@ public sealed class LoginOrganizerValidator
     {
         identifier = identifier.Trim();
 
-        // If contains '@' treat as email
         if (identifier.Contains("@"))
         {
             try
             {
-                var mail = new MailAddress(identifier);
+                _ = new MailAddress(identifier);
                 return true;
             }
             catch
@@ -45,8 +44,6 @@ public sealed class LoginOrganizerValidator
             }
         }
 
-        // Otherwise treat as Indian phone
         return IndianPhoneRegex.IsMatch(identifier);
     }
 }
-

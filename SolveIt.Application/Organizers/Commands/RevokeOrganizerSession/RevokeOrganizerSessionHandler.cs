@@ -8,18 +8,24 @@ using System.Threading.Tasks;
 
 namespace SolveIt.Application.Organizers.Commands.RevokeOrganizerSession
 {
+    // LEGACY AUTH HANDLER
+    // Replaced by unified /api/auth flow.
+    // Safe to remove after full migration validation.
     public sealed class RevokeOrganizerSessionHandler
         : IRequestHandler<RevokeOrganizerSessionCommand, Unit>
     {
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public RevokeOrganizerSessionHandler(
             IRefreshTokenRepository refreshTokenRepository,
-            IJwtTokenService jwtTokenService)
+            IJwtTokenService jwtTokenService,
+            IUnitOfWork unitOfWork)
         {
             _refreshTokenRepository = refreshTokenRepository;
             _jwtTokenService = jwtTokenService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Unit> Handle(
@@ -40,8 +46,7 @@ namespace SolveIt.Application.Organizers.Commands.RevokeOrganizerSession
             if (storedToken is not null && !storedToken.IsRevoked)
             {
                 storedToken.Revoke();
-                await _refreshTokenRepository
-                    .SaveChangesAsync(cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
             return Unit.Value;
         }

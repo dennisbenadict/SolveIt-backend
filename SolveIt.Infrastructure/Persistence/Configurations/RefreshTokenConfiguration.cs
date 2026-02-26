@@ -20,19 +20,14 @@ internal sealed class RefreshTokenConfiguration
             .HasColumnType("uuid")
             .ValueGeneratedNever();
 
-        // Organizer FK
-        builder.Property(r => r.OrganizerId)
+        // User Id (organizer or participant)
+        builder.Property(r => r.UserId)
             .HasColumnName("organizer_id")
             .HasColumnType("uuid")
             .IsRequired();
 
-        builder.HasIndex(r => r.OrganizerId)
+        builder.HasIndex(r => r.UserId)
             .HasDatabaseName("IX_refresh_tokens_organizer_id");
-
-        builder.HasOne<Organizer>()
-            .WithMany()
-            .HasForeignKey(r => r.OrganizerId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         // Token Hash (SHA-256 hex = 64 chars)
         builder.Property(r => r.TokenHash)

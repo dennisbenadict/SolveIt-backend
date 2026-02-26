@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Organizers.Exceptions;
 using System;
@@ -13,11 +13,14 @@ namespace SolveIt.Application.Organizers.Commands.RevokeAllSessions
         : IRequestHandler<RevokeAllSessionsCommand, Unit>
     {
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public RevokeAllSessionsHandler(
-            IRefreshTokenRepository refreshTokenRepository)
+            IRefreshTokenRepository refreshTokenRepository,
+            IUnitOfWork unitOfWork)
         {
             _refreshTokenRepository = refreshTokenRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Unit> Handle(
@@ -32,8 +35,7 @@ namespace SolveIt.Application.Organizers.Commands.RevokeAllSessions
                     request.OrganizerId,
                     cancellationToken);
 
-            await _refreshTokenRepository
-                .SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }

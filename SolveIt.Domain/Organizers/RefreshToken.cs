@@ -5,7 +5,12 @@ namespace SolveIt.Domain.Organizers;
 public sealed class RefreshToken
 {
     public Guid Id { get; private set; }
-    public Guid OrganizerId { get; private set; }
+    /// <summary>
+    /// Represents the authenticated user's Id (Organizer or Participant).
+    /// Originally tied to Organizer, now used as a generic user identifier.
+    /// No foreign key constraint is enforced.
+    /// </summary>
+    public Guid UserId { get; private set; }
     public string TokenHash { get; private set; } = null!;
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime ExpiresAtUtc { get; private set; }
@@ -17,24 +22,24 @@ public sealed class RefreshToken
 
     private RefreshToken(
         Guid id,
-        Guid organizerId,
+        Guid userId,
         string tokenHash,
         DateTime createdAtUtc,
         DateTime expiresAtUtc)
     {
         Id = id;
-        OrganizerId = organizerId;
+        UserId = userId;
         TokenHash = tokenHash;
         CreatedAtUtc = createdAtUtc;
         ExpiresAtUtc = expiresAtUtc;
     }
 
     public static RefreshToken Create(
-        Guid organizerId,
+        Guid userId,
         string tokenHash,
         DateTime expiresAtUtc)
     {
-        if (organizerId == Guid.Empty)
+        if (userId == Guid.Empty)
             throw new InvalidRefreshTokenOrganizerException();
 
         if (string.IsNullOrWhiteSpace(tokenHash))
@@ -45,7 +50,7 @@ public sealed class RefreshToken
 
         return new RefreshToken(
             Guid.NewGuid(),
-            organizerId,
+            userId,
             tokenHash,
             DateTime.UtcNow,
             expiresAtUtc

@@ -18,4 +18,8 @@
     <ProjectReference Include="..\SolveIt.Domain\SolveIt.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Participants\Commands\" />
+  </ItemGroup>
+
 </Project>

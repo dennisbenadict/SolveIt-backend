@@ -11,7 +11,7 @@ namespace SolveIt.Domain.Exceptions
         : DomainException
     {
         public PasswordResetTokenExpiredException()
-            : base("Password reset token has expired.")
+            : base("Invalid or expired password reset token.")
         {
         }
     }

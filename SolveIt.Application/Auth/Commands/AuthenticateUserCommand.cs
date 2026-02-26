@@ -1,9 +1,9 @@
 using MediatR;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 
-namespace SolveIt.Application.Organizers.Commands.LoginOrganizer;
+namespace SolveIt.Application.Auth.Commands;
 
-public sealed record LoginOrganizerCommand(
+public sealed record AuthenticateUserCommand(
     string Identifier,
     string Password
 ) : IRequest<AuthResponseDto>;

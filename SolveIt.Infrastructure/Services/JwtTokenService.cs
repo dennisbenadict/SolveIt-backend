@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SolveIt.Application.Common.Interfaces;
-using SolveIt.Domain.Organizers;
+using SolveIt.Domain.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -18,7 +18,11 @@ public sealed class JwtTokenService : IJwtTokenService
         _configuration = configuration;
     }
 
-    public string GenerateAccessToken(Organizer organizer)
+    public string GenerateAccessToken(
+        Guid userId,
+        string email,
+        string name,
+        UserRole role)
     {
         var jwtSection = _configuration.GetSection("Jwt");
 
@@ -27,8 +31,11 @@ public sealed class JwtTokenService : IJwtTokenService
         var secretKey = jwtSection["SecretKey"];
         var expiryMinutes = int.Parse(jwtSection["ExpiryMinutes"]!);
 
+        if (string.IsNullOrWhiteSpace(secretKey))
+            throw new InvalidOperationException("JWT SecretKey missing.");
+
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(secretKey!));
+            Encoding.UTF8.GetBytes(secretKey));
 
         var credentials = new SigningCredentials(
             key,
@@ -42,12 +49,12 @@ public sealed class JwtTokenService : IJwtTokenService
         //};
 
         var claims = new[]
-          {
-              new Claim(ClaimTypes.NameIdentifier, organizer.Id.ToString()),
-              new Claim(ClaimTypes.Email, organizer.Email),
-              new Claim(ClaimTypes.Name, organizer.Name),
-              new Claim(ClaimTypes.Role, organizer.Role.ToString())
-          };
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.Name, name),
+            new Claim(ClaimTypes.Role, role.ToString())
+        };
 
         var expiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes);
 

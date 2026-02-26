@@ -8,9 +8,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SolveIt.Api.Contracts;
 using SolveIt.Api.Middleware;
+using SolveIt.Application.Auth.Commands;
+using SolveIt.Application.Common.Behaviors;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
-using SolveIt.Application.Organizers.Commands.RegisterOrganizer;
 using SolveIt.Infrastructure.Persistence;
 using SolveIt.Infrastructure.Repositories;
 using SolveIt.Infrastructure.Services;
@@ -61,18 +62,22 @@ builder.Services.AddDbContext<SolveItDbContext>(options =>
 
 // MediatR
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(RegisterOrganizerHandler).Assembly));
+    cfg.RegisterServicesFromAssemblyContaining<RegisterUserHandler>());
 
 // AutoMapper
 builder.Services.AddAutoMapper(
     typeof(MappingProfile).Assembly);
 
 // FluentValidation
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssembly(typeof(RegisterOrganizerCommand).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserCommand>();
+
+builder.Services.AddTransient(
+    typeof(IPipelineBehavior<,>),
+    typeof(ValidationBehavior<,>));
 
 // Services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Repositories
 builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
