@@ -1,15 +1,13 @@
 ﻿using FluentValidation;
-using SolveIt.Application.Auth.Commands;
-using SolveIt.Domain.Common;
 using System.Text.RegularExpressions;
 
-namespace SolveIt.Application.Auth.Validators;
+namespace SolveIt.Application.Auth.Commands.RegisterOrganizer;
 
-public sealed class RegisterUserValidator
-    : AbstractValidator<RegisterUserCommand>
+public sealed class RegisterOrganizerValidator
+    : AbstractValidator<RegisterOrganizerCommand>
 {
     private static readonly Regex IndianPhoneRegex =
-        new(@"^(?:\+91|91)?[6-9]\d{9}$", RegexOptions.Compiled);
+    new(@"^(?:\+91|91)?[6-9]\d{9}$", RegexOptions.Compiled);
 
     private static readonly Regex NameRegex =
         new(@"^[a-zA-Z0-9\s\.\-']+$", RegexOptions.Compiled);
@@ -18,7 +16,7 @@ public sealed class RegisterUserValidator
         new(@"^[A-Za-z0-9](?!.*[._-]{2})[A-Za-z0-9._-]*[A-Za-z0-9]@[A-Za-z0-9-]+\.[A-Za-z]{2,}$",
             RegexOptions.Compiled);
 
-    public RegisterUserValidator()
+    public RegisterOrganizerValidator()
     {
         RuleFor(x => x.Name)
             .Cascade(CascadeMode.Stop)
@@ -54,9 +52,5 @@ public sealed class RegisterUserValidator
         RuleFor(x => x.ConfirmPassword)
             .Equal(x => x.Password)
             .WithMessage("Passwords do not match.");
-
-        RuleFor(x => x.Role)
-            .IsInEnum()
-            .WithMessage("Invalid role.");
     }
 }

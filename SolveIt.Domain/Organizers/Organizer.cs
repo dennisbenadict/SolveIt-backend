@@ -16,7 +16,7 @@ public sealed class Organizer
     // Account Lockout Properties
     public int FailedLoginAttempts { get; private set; }
     public DateTime? LockoutEndUtc { get; private set; }
-
+    public bool IsBlocked { get; private set; }
     public byte[] RowVersion { get; private set; } = null!;
     public UserRole Role { get; private set; }
 
@@ -36,6 +36,7 @@ public sealed class Organizer
 
         FailedLoginAttempts = 0;
         LockoutEndUtc = null;
+        IsBlocked = false;
         Role = role;
     }
 
@@ -112,6 +113,22 @@ public sealed class Organizer
         }
 
         return true;
+    }
+
+    public void Block()
+    {
+        if (IsBlocked)
+            return;
+
+        IsBlocked = true;
+    }
+
+    public void Unblock()
+    {
+        if (!IsBlocked)
+            return;
+
+        IsBlocked = false;
     }
 }
 

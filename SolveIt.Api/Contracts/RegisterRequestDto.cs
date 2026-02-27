@@ -9,6 +9,5 @@ public sealed class RegisterRequestDto
     public string PhoneNumber { get; init; } = null!;
     public string Password { get; init; } = null!;
     public string ConfirmPassword { get; init; } = null!;
-    public UserRole Role { get; init; }
 }
 

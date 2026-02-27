@@ -4,11 +4,9 @@ using SolveIt.Application.Common.Exceptions;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Exceptions;
-using SolveIt.Domain.Common;
-using SolveIt.Domain.Organizers;
 using SolveIt.Domain.Participants;
 
-namespace SolveIt.Application.Auth.Commands;
+namespace SolveIt.Application.Auth.Commands.RegisterUser;
 
 public sealed class RegisterUserHandler
     : IRequestHandler<RegisterUserCommand, Guid>
@@ -34,57 +32,24 @@ public sealed class RegisterUserHandler
         if (request.Password != request.ConfirmPassword)
             throw new PasswordsDoNotMatchException();
 
-        if (request.Role == UserRole.SuperAdmin)
-            throw new InvalidOperationException("SuperAdmin registration is not allowed via API.");
-
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
         var normalizedName = request.Name.Trim();
-        var rawPhone = request.PhoneNumber.Trim();
+        var normalizedPhone = NormalizePhone(request.PhoneNumber);
 
-        // Global email uniqueness across organizers and participants
+        // Global email uniqueness
         if (await _organizerRepository
                 .ExistsByEmailAsync(normalizedEmail, cancellationToken))
             throw new EmailAlreadyExistsException();
 
-        var participantWithEmail =
-            await _participantRepository
-                .GetByEmailAsync(normalizedEmail, cancellationToken);
-
-        if (participantWithEmail is not null)
+        if (await _participantRepository
+                .GetByEmailAsync(normalizedEmail, cancellationToken) is not null)
             throw new EmailAlreadyExistsException();
 
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-        var normalizedPhone = NormalizePhone(rawPhone);
-
-        if (request.Role == UserRole.Organizer)
-        {
-            if (await _organizerRepository
-                    .ExistsByPhoneAsync(normalizedPhone, cancellationToken))
-            {
-                throw new PhoneAlreadyExistsException();
-            }
-
-            var organizer = Organizer.Create(
-                normalizedName,
-                normalizedEmail,
-                normalizedPhone,
-                passwordHash);
-
-            await _organizerRepository.AddAsync(organizer, cancellationToken);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return organizer.Id;
-        }
-
-        // Participant registration
-        var participantWithPhone =
-            await _participantRepository
-                .GetByPhoneAsync(normalizedPhone, cancellationToken);
-
-        if (participantWithPhone is not null)
+        if (await _participantRepository
+                .GetByPhoneAsync(normalizedPhone, cancellationToken) is not null)
             throw new PhoneAlreadyExistsException();
+
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var participant = Participant.Create(
             normalizedName,

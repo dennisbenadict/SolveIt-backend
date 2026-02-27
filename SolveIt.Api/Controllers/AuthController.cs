@@ -5,7 +5,12 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using SolveIt.Api.Common.Extensions;
 using SolveIt.Api.Contracts;
-using SolveIt.Application.Auth.Commands;
+using SolveIt.Application.Auth.Commands.AuthenticateUser;
+using SolveIt.Application.Auth.Commands.RefreshToken;
+using SolveIt.Application.Auth.Commands.RegisterOrganizer;
+using SolveIt.Application.Auth.Commands.RegisterUser;
+using SolveIt.Application.Auth.Commands.RequestPasswordReset;
+using SolveIt.Application.Auth.Commands.ResetPassword;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Common.DTOs.PasswordResetDTOs;
 using SolveIt.Application.Organizers.Commands.RevokeAllSessions;
@@ -36,7 +41,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [EnableRateLimiting("AuthModeratePolicy")]
-    [HttpPost("register")]
+    [HttpPost("participant/register")]
     public async Task<ActionResult<ApiResponse<Guid>>> Register(
         [FromBody] RegisterRequestDto request,
         CancellationToken cancellationToken)
@@ -46,8 +51,7 @@ public sealed class AuthController : ControllerBase
             request.Email,
             request.PhoneNumber,
             request.Password,
-            request.ConfirmPassword,
-            request.Role);
+            request.ConfirmPassword);
 
         var userId = await _mediator.Send(command, cancellationToken);
 
@@ -56,6 +60,29 @@ public sealed class AuthController : ControllerBase
             ApiResponse<Guid>.Success(
                 userId,
                 "User registered successfully.",
+                HttpStatusCode.Created));
+    }
+
+    [EnableRateLimiting("AuthModeratePolicy")]
+    [HttpPost("organizer/register")]
+    public async Task<ActionResult<ApiResponse<Guid>>> RegisterOrganizer(
+    [FromBody] RegisterOrganizerRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        var command = new RegisterOrganizerCommand(
+            request.Name,
+            request.Email,
+            request.PhoneNumber,
+            request.Password,
+            request.ConfirmPassword);
+
+        var userId = await _mediator.Send(command, cancellationToken);
+
+        return StatusCode(
+            (int)HttpStatusCode.Created,
+            ApiResponse<Guid>.Success(
+                userId,
+                "Organizer registered successfully.",
                 HttpStatusCode.Created));
     }
 

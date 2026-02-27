@@ -7,8 +7,9 @@ using SolveIt.Application.Interfaces;
 using SolveIt.Application.Organizers.Exceptions;
 using SolveIt.Domain.Common;
 using SolveIt.Domain.Organizers;
+using DomainRefreshToken = SolveIt.Domain.Organizers.RefreshToken;
 
-namespace SolveIt.Application.Auth.Commands;
+namespace SolveIt.Application.Auth.Commands.RefreshToken;
 
 public sealed class RefreshTokenHandler
     : IRequestHandler<RefreshTokenCommand, AuthResponseDto>
@@ -81,6 +82,13 @@ public sealed class RefreshTokenHandler
             if (organizer.IsLockedOut())
                 throw new AccountLockedException();
 
+            if (organizer.IsBlocked)
+            {
+                storedToken.Revoke(null);
+                await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
+                throw new AccountBlockedException();
+            }
+
             email = organizer.Email;
             name = organizer.Name;
             role = organizer.Role;
@@ -96,6 +104,13 @@ public sealed class RefreshTokenHandler
 
             if (participant.IsLockedOut())
                 throw new AccountLockedException();
+
+            if (participant.IsBlocked)
+            {
+                storedToken.Revoke(null);
+                await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
+                throw new AccountBlockedException();
+            }
 
             email = participant.Email;
             name = participant.Name;
@@ -116,7 +131,7 @@ public sealed class RefreshTokenHandler
             _jwtTokenService.HashRefreshToken(rawRefreshToken);
 
         var newRefreshToken =
-            RefreshToken.Create(
+            DomainRefreshToken.Create(
                 userId,
                 newHashedToken,
                 now.AddDays(7));

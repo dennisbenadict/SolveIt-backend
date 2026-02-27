@@ -16,6 +16,7 @@ public sealed class Participant
     // Lockout
     public int FailedLoginAttempts { get; private set; }
     public DateTime? LockoutEndUtc { get; private set; }
+    public bool IsBlocked { get; private set; }
 
     public byte[] RowVersion { get; private set; } = null!;
 
@@ -43,6 +44,7 @@ public sealed class Participant
 
         FailedLoginAttempts = 0;
         LockoutEndUtc = null;
+        IsBlocked = false;
     }
 
     public static Participant Create(
@@ -112,5 +114,21 @@ public sealed class Participant
         }
 
         return true;
+    }
+
+    public void Block()
+    {
+        if (IsBlocked)
+            return;
+
+        IsBlocked = true;
+    }
+
+    public void Unblock()
+    {
+        if (!IsBlocked)
+            return;
+
+        IsBlocked = false;
     }
 }

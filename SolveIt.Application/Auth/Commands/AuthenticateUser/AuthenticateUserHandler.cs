@@ -10,8 +10,9 @@ using SolveIt.Application.Organizers.Exceptions;
 using SolveIt.Domain.Common;
 using SolveIt.Domain.Organizers;
 using SolveIt.Domain.Participants;
+using DomainRefreshToken = SolveIt.Domain.Organizers.RefreshToken;
 
-namespace SolveIt.Application.Auth.Commands;
+namespace SolveIt.Application.Auth.Commands.AuthenticateUser;
 
 public sealed class AuthenticateUserHandler
     : IRequestHandler<AuthenticateUserCommand, AuthResponseDto>
@@ -82,11 +83,14 @@ public sealed class AuthenticateUserHandler
         if (organizer is null && participant is null)
             throw new InvalidCredentialsException();
 
-        // Account lockout check
+        // Account lockout + block check
         if (organizer is not null)
         {
             if (organizer.IsLockedOut())
                 throw new AccountLockedException();
+
+            if (organizer.IsBlocked)
+                throw new AccountBlockedException();
 
             userId = organizer.Id;
             email = organizer.Email;
@@ -98,6 +102,10 @@ public sealed class AuthenticateUserHandler
         {
             if (participant!.IsLockedOut())
                 throw new AccountLockedException();
+
+            if (participant.IsBlocked)
+                throw new AccountBlockedException();
+
 
             userId = participant.Id;
             email = participant.Email;
@@ -148,7 +156,7 @@ public sealed class AuthenticateUserHandler
         var refreshToken = _jwtService.GenerateRefreshToken();
         var refreshTokenHash = _jwtService.HashRefreshToken(refreshToken);
 
-        var refreshEntity = RefreshToken.Create(
+        var refreshEntity = DomainRefreshToken.Create(
             userId,
             refreshTokenHash,
             DateTime.UtcNow.AddDays(7));

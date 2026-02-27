@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SolveIt.Api.Contracts;
 using SolveIt.Api.Middleware;
-using SolveIt.Application.Auth.Commands;
+using SolveIt.Application.Auth.Commands.RegisterUser;
 using SolveIt.Application.Common.Behaviors;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;

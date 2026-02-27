@@ -66,6 +66,13 @@ namespace SolveIt.Infrastructure.Persistence.Configurations
                 .HasColumnType("timestamp with time zone")
                 .IsRequired(false);
 
+            // Is Blocked
+            builder.Property(p => p.IsBlocked)
+                .HasColumnName("is_blocked")
+                .HasColumnType("boolean")
+                .IsRequired()
+                .HasDefaultValue(false);
+
             // Concurrency Token
             builder.Property(p => p.RowVersion)
                 .HasColumnName("row_version")

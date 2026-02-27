@@ -6,7 +6,7 @@ using SolveIt.Application.Interfaces;
 using SolveIt.Domain.Organizers;
 using SolveIt.Domain.Participants;
 
-namespace SolveIt.Application.Auth.Commands;
+namespace SolveIt.Application.Auth.Commands.RequestPasswordReset;
 
 public sealed class RequestPasswordResetHandler
     : IRequestHandler<RequestPasswordResetCommand, Unit>

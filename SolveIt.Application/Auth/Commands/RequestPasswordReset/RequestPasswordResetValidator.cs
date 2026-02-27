@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
-using SolveIt.Application.Auth.Commands;
 
-namespace SolveIt.Application.Auth.Validators;
+namespace SolveIt.Application.Auth.Commands.RequestPasswordReset;
 
 public sealed class RequestPasswordResetValidator
     : AbstractValidator<RequestPasswordResetCommand>

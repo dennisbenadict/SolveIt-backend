@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SolveIt.Application.Auth.Commands
+namespace SolveIt.Application.Auth.Commands.ResetPassword
 {
     public sealed record ResetPasswordCommand(
         string Token,

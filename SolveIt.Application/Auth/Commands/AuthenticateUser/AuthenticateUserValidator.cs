@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
-using SolveIt.Application.Auth.Commands;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
-namespace SolveIt.Application.Auth.Validators;
+namespace SolveIt.Application.Auth.Commands.AuthenticateUser;
 
 public sealed class AuthenticateUserValidator
     : AbstractValidator<AuthenticateUserCommand>
