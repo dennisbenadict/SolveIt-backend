@@ -134,7 +134,10 @@ public sealed class RefreshTokenHandler
             DomainRefreshToken.Create(
                 userId,
                 newHashedToken,
-                now.AddDays(7));
+                now.AddDays(7),
+                storedToken.DeviceFingerprint,
+                storedToken.IpAddress,
+                storedToken.UserAgent);
 
         storedToken.Revoke(newRefreshToken.Id);
 

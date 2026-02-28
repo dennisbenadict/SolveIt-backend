@@ -90,6 +90,13 @@ namespace SolveIt.Infrastructure.Persistence.Configurations
                 .HasColumnName("role")
                 .HasConversion<int>()
                 .IsRequired();
+
+            // Has Used Free Trial
+            builder.Property(o => o.HasUsedFreeTrial)
+                .HasColumnName("has_used_free_trial")
+                .HasColumnType("boolean")
+                .IsRequired()
+                .HasDefaultValue(false);
         }
     }
 }

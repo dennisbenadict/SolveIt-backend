@@ -92,9 +92,15 @@ public sealed class AuthController : ControllerBase
         [FromBody] LoginRequestDto request,
         CancellationToken cancellationToken)
     {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers["User-Agent"].ToString();
+
         var command = new AuthenticateUserCommand(
             request.Identifier,
-            request.Password);
+            request.Password,
+            request.DeviceFingerprint,
+            ipAddress,
+            userAgent);
 
         var result = await _mediator.Send<AuthResponseDto>(command, cancellationToken);
 

@@ -5,6 +5,9 @@ namespace SolveIt.Application.Auth.Commands.AuthenticateUser;
 
 public sealed record AuthenticateUserCommand(
     string Identifier,
-    string Password
+    string Password,
+    string? DeviceFingerprint,
+    string? IpAddress,
+    string? UserAgent
 ) : IRequest<AuthResponseDto>;
 

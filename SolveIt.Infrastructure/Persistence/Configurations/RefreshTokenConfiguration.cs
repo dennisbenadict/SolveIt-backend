@@ -78,5 +78,23 @@ internal sealed class RefreshTokenConfiguration
             .WithOne()
             .HasForeignKey<RefreshToken>(r => r.ReplacedByTokenId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Device Fingerprint
+        builder.Property(r => r.DeviceFingerprint)
+            .HasColumnName("device_fingerprint")
+            .HasColumnType("text")
+            .IsRequired(false);
+
+        // Store IpAddress
+        builder.Property(r => r.IpAddress)
+               .HasColumnName("ip_address")
+               .HasColumnType("varchar(64)")
+               .IsRequired(false);
+
+        // 
+        builder.Property(r => r.UserAgent)
+               .HasColumnName("user_agent")
+               .HasColumnType("text")
+               .IsRequired(false);
     }
 }

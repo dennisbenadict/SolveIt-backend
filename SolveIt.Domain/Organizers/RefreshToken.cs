@@ -17,6 +17,9 @@ public sealed class RefreshToken
     public bool IsRevoked { get; private set; }
     public DateTime? RevokedAtUtc { get; private set; }
     public Guid? ReplacedByTokenId { get; private set; }
+    public string? DeviceFingerprint { get; private set; }
+    public string? IpAddress { get; private set; }
+    public string? UserAgent { get; private set; }
 
     private RefreshToken() { } // EF Core
 
@@ -25,19 +28,28 @@ public sealed class RefreshToken
         Guid userId,
         string tokenHash,
         DateTime createdAtUtc,
-        DateTime expiresAtUtc)
+        DateTime expiresAtUtc,
+        string? deviceFingerprint,
+        string? ipAddress,
+        string? userAgent)
     {
         Id = id;
         UserId = userId;
         TokenHash = tokenHash;
         CreatedAtUtc = createdAtUtc;
         ExpiresAtUtc = expiresAtUtc;
+        DeviceFingerprint = deviceFingerprint;
+        IpAddress = ipAddress;
+        UserAgent = userAgent;
     }
 
     public static RefreshToken Create(
         Guid userId,
         string tokenHash,
-        DateTime expiresAtUtc)
+        DateTime expiresAtUtc,
+        string? deviceFingerprint,
+        string? ipAddress,
+        string? userAgent)
     {
         if (userId == Guid.Empty)
             throw new InvalidRefreshTokenOrganizerException();
@@ -53,7 +65,10 @@ public sealed class RefreshToken
             userId,
             tokenHash,
             DateTime.UtcNow,
-            expiresAtUtc
+            expiresAtUtc,
+            deviceFingerprint,
+            ipAddress,
+            userAgent
         );
     }
 

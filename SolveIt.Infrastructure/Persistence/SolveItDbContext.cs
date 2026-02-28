@@ -18,6 +18,7 @@ namespace SolveIt.Infrastructure.Persistence
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         public DbSet<Participant> Participants { get; set; } = null!;
+        public DbSet<TrialUsage> TrialUsages { get; set; }
         //public DbSet<Tournament> Tournaments => Set<Tournament>();
         //public DbSet<Submission> Submissions => Set<Submission>();
 

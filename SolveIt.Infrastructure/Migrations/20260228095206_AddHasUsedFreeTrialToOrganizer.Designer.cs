@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SolveIt.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SolveIt.Infrastructure.Persistence;
 namespace SolveIt.Infrastructure.Migrations
 {
     [DbContext(typeof(SolveItDbContext))]
-    partial class SolveItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260228095206_AddHasUsedFreeTrialToOrganizer")]
+    partial class AddHasUsedFreeTrialToOrganizer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,42 +206,6 @@ namespace SolveIt.Infrastructure.Migrations
                         .HasDatabaseName("IX_refresh_tokens_organizer_id");
 
                     b.ToTable("refresh_tokens", (string)null);
-                });
-
-            modelBuilder.Entity("SolveIt.Domain.Organizers.TrialUsage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("DeviceFingerprint")
-                        .HasColumnType("text")
-                        .HasColumnName("device_fingerprint");
-
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("varchar(64)")
-                        .HasColumnName("ip_address");
-
-                    b.Property<Guid>("OrganizerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organizer_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeviceFingerprint")
-                        .HasDatabaseName("IX_trial_usages_device_fingerprint");
-
-                    b.HasIndex("IpAddress")
-                        .HasDatabaseName("IX_trial_usages_ip_address");
-
-                    b.HasIndex("OrganizerId")
-                        .HasDatabaseName("IX_trial_usages_organizer_id");
-
-                    b.ToTable("trial_usages", (string)null);
                 });
 
             modelBuilder.Entity("SolveIt.Domain.Participants.Participant", b =>

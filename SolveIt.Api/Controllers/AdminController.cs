@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SolveIt.Api.Contracts;
 using System.Net;
 using SolveIt.Application.Admin.UnblockUser;
-using SolveIt.Application.Admin.BlockUser;
+using SolveIt.Application.Admin.Commands.BlockUser;
 
 namespace SolveIt.Api.Controllers;
 

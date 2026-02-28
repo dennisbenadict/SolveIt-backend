@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SolveIt.Application.Admin.BlockUser;
+using SolveIt.Application.Admin.Commands.BlockUser;
 
 namespace SolveIt.Application.Admin.Commands.BlockUser
 {

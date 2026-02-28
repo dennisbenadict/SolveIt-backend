@@ -156,10 +156,17 @@ public sealed class AuthenticateUserHandler
         var refreshToken = _jwtService.GenerateRefreshToken();
         var refreshTokenHash = _jwtService.HashRefreshToken(refreshToken);
 
+        var ipAddress = request.IpAddress;
+        var deviceFingerprint = request.DeviceFingerprint;
+        var userAgent = request.UserAgent;
+
         var refreshEntity = DomainRefreshToken.Create(
             userId,
             refreshTokenHash,
-            DateTime.UtcNow.AddDays(7));
+            DateTime.UtcNow.AddDays(7),
+            deviceFingerprint,
+            ipAddress,
+            userAgent);
 
         await _refreshRepository.AddAsync(refreshEntity, cancellationToken);
 

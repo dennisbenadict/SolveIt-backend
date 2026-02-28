@@ -19,6 +19,7 @@ public sealed class Organizer
     public bool IsBlocked { get; private set; }
     public byte[] RowVersion { get; private set; } = null!;
     public UserRole Role { get; private set; }
+    public bool HasUsedFreeTrial { get; private set; }
 
     private const int MaxFailedAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
@@ -38,6 +39,7 @@ public sealed class Organizer
         LockoutEndUtc = null;
         IsBlocked = false;
         Role = role;
+        HasUsedFreeTrial = false;
     }
 
     public static Organizer Create(
@@ -115,6 +117,7 @@ public sealed class Organizer
         return true;
     }
 
+    // Block
     public void Block()
     {
         if (IsBlocked)
@@ -123,12 +126,22 @@ public sealed class Organizer
         IsBlocked = true;
     }
 
+    // Unblock
     public void Unblock()
     {
         if (!IsBlocked)
             return;
 
         IsBlocked = false;
+    }
+
+    // Free Trial
+    public void ActivateFreeTrial()
+    {
+        if (HasUsedFreeTrial)
+            throw new FreeTrialAlreadyUsedException();
+
+        HasUsedFreeTrial = true;
     }
 }
 
