@@ -31,7 +31,7 @@ namespace SolveIt.Application.Organizers.Commands.RevokeAllSessions
                 throw new InvalidCredentialsException();
 
             await _refreshTokenRepository
-                .RevokeAllByOrganizerIdAsync(
+                .RevokeAllByUserIdAsync(
                     request.OrganizerId,
                     cancellationToken);
 

@@ -131,4 +131,20 @@ public sealed class Participant
 
         IsBlocked = false;
     }
+
+    public void UpdateProfile(string name, string email, string phoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new NameRequiredException();
+
+        if (string.IsNullOrWhiteSpace(email))
+            throw new EmailRequiredException();
+
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+            throw new PhoneNumberRequiredException();
+
+        Name = name.Trim();
+        Email = email.Trim().ToLowerInvariant();
+        PhoneNumber = phoneNumber.Trim();
+    }
 }

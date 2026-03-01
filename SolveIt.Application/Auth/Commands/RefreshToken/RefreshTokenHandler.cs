@@ -52,7 +52,7 @@ public sealed class RefreshTokenHandler
             if (storedToken.ReplacedByTokenId is not null)
             {
                 await _refreshTokenRepository
-                    .RevokeAllByOrganizerIdAsync(
+                    .RevokeAllByUserIdAsync(
                         storedToken.UserId,
                         cancellationToken);
 

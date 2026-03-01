@@ -6,11 +6,13 @@ using Microsoft.Extensions.Configuration;
 using SolveIt.Api.Common.Extensions;
 using SolveIt.Api.Contracts;
 using SolveIt.Application.Auth.Commands.AuthenticateUser;
+using SolveIt.Application.Auth.Commands.ChangePassword;
 using SolveIt.Application.Auth.Commands.RefreshToken;
 using SolveIt.Application.Auth.Commands.RegisterOrganizer;
 using SolveIt.Application.Auth.Commands.RegisterUser;
 using SolveIt.Application.Auth.Commands.RequestPasswordReset;
 using SolveIt.Application.Auth.Commands.ResetPassword;
+using SolveIt.Application.Auth.Commands.UpdateProfile;
 using SolveIt.Application.Common.DTOs.OrganizerAuthDTOs;
 using SolveIt.Application.Common.DTOs.PasswordResetDTOs;
 using SolveIt.Application.Organizers.Commands.RevokeAllSessions;
@@ -189,6 +191,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [Authorize]
+    [EnableRateLimiting("AuthModeratePolicy")]
     [HttpPost("revoke-all")]
     public async Task<ActionResult<ApiResponse<string?>>> RevokeAll(
         CancellationToken cancellationToken)
@@ -197,12 +200,13 @@ public sealed class AuthController : ControllerBase
 
         await _mediator.Send(new RevokeAllSessionsCommand(userId), cancellationToken);
 
-        return Ok(ApiResponse<string?>.Success(
-            null,
-            "All sessions revoked"));
+        return Ok(ApiResponse<string>.Success(
+            "All sessions revoked",
+            "Operation successful"));
     }
 
     [Authorize]
+    [EnableRateLimiting("AuthReadPolicy")]
     [HttpGet("me")]
     public ActionResult<ApiResponse<object>> Me()
     {
@@ -270,5 +274,51 @@ public sealed class AuthController : ControllerBase
         return Ok(ApiResponse<string?>.Success(
             null,
             "Password reset successfully."));
+    }
+
+    [Authorize]
+    [EnableRateLimiting("AuthModeratePolicy")]
+    [HttpPut("profile")]
+    public async Task<ActionResult<ApiResponse<string>>> UpdateProfile(
+    [FromBody] UpdateProfileRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+
+        var command = new UpdateProfileCommand(
+            userId,
+            request.Name,
+            request.Email,
+            request.PhoneNumber);
+
+        await _mediator.Send(command, cancellationToken);
+
+        return Ok(
+            ApiResponse<string>.Success(
+                "Profile updated successfully.",
+                "Operation successful.",
+                HttpStatusCode.OK));
+    }
+
+    [Authorize]
+    [EnableRateLimiting("AuthModeratePolicy")]
+    [HttpPost("change-password")]
+    public async Task<ActionResult<ApiResponse<string>>> ChangePassword(
+    [FromBody] ChangePasswordRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+
+        var command = new ChangePasswordCommand(
+            userId,
+            request.CurrentPassword,
+            request.NewPassword);
+
+        await _mediator.Send(command, cancellationToken);
+
+        return Ok(ApiResponse<string>.Success(
+            "Password changed successfully.",
+            "Operation successful",
+            HttpStatusCode.OK));
     }
 }

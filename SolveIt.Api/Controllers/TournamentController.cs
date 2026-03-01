@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SolveIt.Api.Common.Extensions;
 using SolveIt.Api.Contracts;
 using SolveIt.Application.Tournaments.Commands.CreateTournament;
@@ -11,6 +12,7 @@ namespace SolveIt.Api.Controllers;
 [ApiController]
 [Route("api/tournaments")]
 [Authorize(Roles = "Organizer")]
+[EnableRateLimiting("AuthModeratePolicy")]
 public sealed class TournamentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -32,8 +34,11 @@ public sealed class TournamentController : ControllerBase
         var command = new CreateTournamentCommand(
             organizerId,
             request.Title,
+            request.Description,
             request.DeviceFingerprint,
-            ipAddress);
+            ipAddress,
+            request.StartTimeUtc,
+            request.EndTimeUtc);
 
         var tournamentId = await _mediator.Send(command, cancellationToken);
 

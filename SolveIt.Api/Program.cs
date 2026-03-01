@@ -85,6 +85,7 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
 builder.Services.AddScoped<ITrialUsageRepository, TrialUsageRepository>();
+builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 
 // Rate Limiting
 builder.Services.AddRateLimiter(options =>

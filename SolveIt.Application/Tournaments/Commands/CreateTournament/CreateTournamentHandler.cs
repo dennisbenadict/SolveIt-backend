@@ -4,6 +4,7 @@ using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Domain.Exceptions;
 using SolveIt.Domain.Organizers;
+using SolveIt.Domain.Tournaments;
 
 namespace SolveIt.Application.Tournaments.Commands.CreateTournament;
 
@@ -13,15 +14,18 @@ public sealed class CreateTournamentHandler
     private readonly IOrganizerRepository _organizerRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITrialUsageRepository _trialUsageRepository;
+    private readonly ITournamentRepository _tournamentRepository;
 
     public CreateTournamentHandler(
         IOrganizerRepository organizerRepository,
         ITrialUsageRepository trialUsageRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ITournamentRepository tournamentRepository)
     {
         _organizerRepository = organizerRepository;
         _trialUsageRepository = trialUsageRepository;
         _unitOfWork = unitOfWork;
+        _tournamentRepository = tournamentRepository;
     }
 
     public async Task<Guid> Handle(
@@ -71,6 +75,20 @@ public sealed class CreateTournamentHandler
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Guid.NewGuid();
+        var tournament = Tournament.Create(
+            organizer.Id,
+            request.Title,
+            request.Description,
+            request.StartTimeUtc,
+            request.EndTimeUtc,
+            true);
+
+        await _tournamentRepository.AddAsync(
+            tournament,
+            cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return tournament.Id;
     }
 }

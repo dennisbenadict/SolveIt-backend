@@ -78,7 +78,7 @@ public sealed class ResetPasswordHandler
         }
 
         await _refreshTokenRepository
-            .RevokeAllByOrganizerIdAsync(userId, cancellationToken);
+            .RevokeAllByUserIdAsync(userId, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -10,7 +10,6 @@
     <Folder Include="Leaderboards\" />
     <Folder Include="Payments\" />
     <Folder Include="Problems\" />
-    <Folder Include="Tournaments\" />
   </ItemGroup>
 
 </Project>

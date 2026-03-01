@@ -9,5 +9,6 @@ namespace SolveIt.Application.Interfaces
         Task<Participant?> GetByPhoneAsync(string phoneNumber, CancellationToken cancellationToken);
         Task<Participant?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task SaveChangesAsync(CancellationToken cancellationToken);
+        Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken);
     }
 }

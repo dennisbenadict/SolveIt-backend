@@ -41,5 +41,11 @@ namespace SolveIt.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            return await _context.Participants
+                .AnyAsync(p => p.Email == email, cancellationToken);
+        }
     }
 }

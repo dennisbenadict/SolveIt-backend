@@ -25,13 +25,13 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
             .FirstOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
     }
 
-    public async Task RevokeAllByOrganizerIdAsync(
-    Guid organizerId,
+    public async Task RevokeAllByUserIdAsync(
+    Guid userId,
     CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
         await _dbContext.RefreshTokens
-            .Where(x => x.UserId == organizerId && !x.IsRevoked)
+            .Where(x => x.UserId == userId && !x.IsRevoked)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(x => x.IsRevoked, true)
                 .SetProperty(x => x.RevokedAtUtc, now),

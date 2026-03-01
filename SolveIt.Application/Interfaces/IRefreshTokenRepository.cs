@@ -8,7 +8,7 @@ public interface IRefreshTokenRepository
 
     Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken cancellationToken);
 
-    Task RevokeAllByOrganizerIdAsync(
+    Task RevokeAllByUserIdAsync(
     Guid organizerId,
     CancellationToken cancellationToken);
 

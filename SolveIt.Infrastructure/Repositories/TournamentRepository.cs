@@ -1,12 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using SolveIt.Application.Interfaces;
+using SolveIt.Domain.Tournaments;
+using SolveIt.Infrastructure.Persistence;
 
-namespace SolveIt.Infrastructure.Repositories
+namespace SolveIt.Infrastructure.Repositories;
+
+public sealed class TournamentRepository
+    : ITournamentRepository
 {
-    internal class TournamentRepository
+    private readonly SolveItDbContext _context;
+
+    public TournamentRepository(SolveItDbContext context)
     {
+        _context = context;
+    }
+
+    public async Task AddAsync(
+        Tournament tournament,
+        CancellationToken cancellationToken)
+    {
+        await _context.Tournaments
+            .AddAsync(tournament, cancellationToken);
+    }
+
+    public async Task<Tournament?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        return await _context.Tournaments
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 }
