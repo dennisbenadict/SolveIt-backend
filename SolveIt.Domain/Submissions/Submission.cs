@@ -1,97 +1,96 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+namespace SolveIt.Domain.Submissions;
 
-namespace SolveIt.Domain.Submissions
+public sealed class Submission
 {
-//What is a GUID (instead of int)?
+    public Guid Id { get; private set; }
 
-//GUID = Globally Unique Identifier
-//It is a 128-bit value designed to be unique across space and time.
+    public Guid TournamentProblemId { get; private set; }
 
-//Meaning:
-//Unique across users
-//Unique across servers
-//Unique across regions
-//Unique even without a database
-//No coordination required.
-    public sealed class Submission
+    public Guid ParticipantId { get; private set; }
+
+    public string Language { get; private set; } = null!;
+
+    public string SourceCode { get; private set; } = null!;
+
+    public SubmissionStatus Status { get; private set; }
+
+    public int PassedTestCases { get; private set; }
+
+    public int TotalTestCases { get; private set; }
+
+    public DateTime CreatedAtUtc { get; private set; }
+
+    public byte[] RowVersion { get; private set; } = null!;
+
+    private Submission() { }
+
+    private Submission(
+        Guid id,
+        Guid problemId,
+        Guid participantId,
+        string language,
+        string sourceCode)
     {
-        public Guid Id { get; private set; }
-        public Guid UserId { get; private set; }
-        public Guid ContestId { get; private set; }
-        public Guid ProblemId { get; private set; }
-        public SubmissionStatus Status { get; private set; }
-        public DateTime CreatedAtUtc { get; private set; }
+        Id = id;
+        TournamentProblemId = problemId;
+        ParticipantId = participantId;
+        Language = language;
+        SourceCode = sourceCode;
 
-        private Submission() { } 
+        Status = SubmissionStatus.Pending;
+        PassedTestCases = 0;
+        TotalTestCases = 0;
 
-        public Submission(
-            Guid id,
-            Guid userId,
-            Guid contestId,
-            Guid problemId)
-        {
-            if (id == Guid.Empty) throw new ArgumentException("SubmissionId is required");
-            if (userId == Guid.Empty) throw new ArgumentException("UserId is required");
-            if (contestId == Guid.Empty) throw new ArgumentException("ContestId is required");
-            if (problemId == Guid.Empty) throw new ArgumentException("ProblemId is required");
-
-            Id = id;
-            UserId = userId;
-            ContestId = contestId;
-            ProblemId = problemId;
-
-            Status = SubmissionStatus.Pending;
-            CreatedAtUtc = DateTime.UtcNow;
-        }
-
-        public void MarkQueued()
-        {
-            EnsureState(SubmissionStatus.Pending);
-            Status = SubmissionStatus.Queued;
-        }
-
-        public void MarkRunning()
-        {
-            EnsureState(SubmissionStatus.Queued);
-            Status = SubmissionStatus.Running;
-        }
-
-        public void MarkSucceeded()
-        {
-            EnsureState(SubmissionStatus.Running);
-            Status = SubmissionStatus.Succeeded;
-        }
-
-        public void MarkFailed()
-        {
-            EnsureState(SubmissionStatus.Running);
-            Status = SubmissionStatus.Failed;
-        }
-
-        public void MarkTimedOut()
-        {
-            EnsureState(SubmissionStatus.Running);
-            Status = SubmissionStatus.TimedOut;
-        }
-
-        public void Reject()
-        {
-            EnsureState(SubmissionStatus.Pending);
-            Status = SubmissionStatus.Rejected;
-        }
-
-        private void EnsureState(SubmissionStatus expected)
-        {
-            if (Status != expected)
-                throw new InvalidOperationException(
-                    $"Invalid state transition: {Status} → {expected}");
-        }
+        CreatedAtUtc = DateTime.UtcNow;
     }
 
+    public static Submission Create(
+        Guid problemId,
+        Guid participantId,
+        string language,
+        string sourceCode)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+            throw new ArgumentException("Language required.");
+
+        if (string.IsNullOrWhiteSpace(sourceCode))
+            throw new ArgumentException("Source code required.");
+
+        return new Submission(
+            Guid.NewGuid(),
+            problemId,
+            participantId,
+            language.Trim(),
+            sourceCode);
+    }
+
+    public void MarkQueued()
+    {
+        Status = SubmissionStatus.Queued;
+    }
+
+    public void MarkRunning()
+    {
+        Status = SubmissionStatus.Running;
+    }
+
+    public void MarkAccepted(int totalTests)
+    {
+        Status = SubmissionStatus.Accepted;
+        PassedTestCases = totalTests;
+        TotalTestCases = totalTests;
+    }
+
+    public void MarkFailed(
+        SubmissionStatus failureStatus,
+        int passed,
+        int total)
+    {
+        if (failureStatus == SubmissionStatus.Accepted)
+            throw new ArgumentException("Invalid failure status.");
+
+        Status = failureStatus;
+        PassedTestCases = passed;
+        TotalTestCases = total;
+    }
 }

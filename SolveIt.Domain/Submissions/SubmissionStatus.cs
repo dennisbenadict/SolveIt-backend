@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace SolveIt.Domain.Submissions;
 
-namespace SolveIt.Domain.Submissions
+public enum SubmissionStatus
 {
-    public enum SubmissionStatus
-    {
-        Pending = 0,     // Created but not queued
-        Queued = 1,      // Sent to Kafka
-        Running = 2,     // Executing in sandbox
-        Succeeded = 3,   // Passed all tests
-        Failed = 4,      // Logical/runtime failure
-        TimedOut = 5,    // Exceeded time limit
-        Rejected = 6     // Invalid / disqualified
-    }
+    Pending = 0,            // Created but not queued
+    Queued = 1,             // Sent to worker queue
+    Running = 2,            // Executing
+
+    Accepted = 3,           // Passed all tests
+    WrongAnswer = 4,        // Output mismatch
+    RuntimeError = 5,       // Program crashed
+    CompilationError = 6,   // Build failed
+    TimeLimitExceeded = 7,  // Execution timeout
+    MemoryLimitExceeded = 8 // Memory violation
 }

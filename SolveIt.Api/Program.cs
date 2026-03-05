@@ -12,6 +12,7 @@ using SolveIt.Application.Auth.Commands.RegisterUser;
 using SolveIt.Application.Common.Behaviors;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
+using SolveIt.Infrastructure.Messaging;
 using SolveIt.Infrastructure.Persistence;
 using SolveIt.Infrastructure.Repositories;
 using SolveIt.Infrastructure.Services;
@@ -87,6 +88,9 @@ builder.Services.AddScoped<IParticipantRepository, ParticipantRepository>();
 builder.Services.AddScoped<ITrialUsageRepository, TrialUsageRepository>();
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<ITournamentParticipantRepository, TournamentParticipantRepository>();
+builder.Services.AddScoped<ITestCaseRepository, TestCaseRepository>();
+builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
+builder.Services.AddScoped<ISubmissionQueuePublisher, SubmissionQueuePublisher>();
 // Rate Limiting
 builder.Services.AddRateLimiter(options =>
 {

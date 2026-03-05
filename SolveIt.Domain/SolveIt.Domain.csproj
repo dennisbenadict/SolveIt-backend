@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Leaderboards\" />
     <Folder Include="Payments\" />
-    <Folder Include="Problems\" />
   </ItemGroup>
 
 </Project>

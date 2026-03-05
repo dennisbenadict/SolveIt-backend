@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using SolveIt.Domain.Organizers;
 using SolveIt.Domain.Participants;
+using SolveIt.Domain.Submissions;
+using SolveIt.Domain.TestCases;
 using SolveIt.Domain.TournamentParticipants;
+using SolveIt.Domain.TournamentProblems;
+
 //using SolveIt.Domain.Submissions;
 using SolveIt.Domain.Tournaments;
 
@@ -22,7 +26,9 @@ namespace SolveIt.Infrastructure.Persistence
         public DbSet<TrialUsage> TrialUsages { get; set; }
         public DbSet<Tournament> Tournaments { get; set; }
         public DbSet<TournamentParticipant> TournamentParticipants { get; set; }
-        //public DbSet<Submission> Submissions => Set<Submission>();
+        public DbSet<TournamentProblem> TournamentProblems { get; set; }
+        public DbSet<TestCase> TestCases { get; set; }
+        public DbSet<Submission> Submissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

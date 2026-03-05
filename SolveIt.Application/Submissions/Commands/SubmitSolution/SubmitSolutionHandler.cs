@@ -1,57 +1,63 @@
+using MediatR;
+using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Domain.Submissions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SolveIt.Application.Submissions.Commands.SubmitSolution
+namespace SolveIt.Application.Submissions.Commands.SubmitSolution;
+
+public sealed class SubmitSolutionHandler
+    : IRequestHandler<SubmitSolutionCommand, Guid>
 {
-    public sealed class SubmitSolutionHandler
+    private readonly ISubmissionRepository _submissionRepository;
+    private readonly ITournamentParticipantRepository _participantRepository;
+    private readonly ISubmissionQueuePublisher _queuePublisher;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public SubmitSolutionHandler(
+        ISubmissionRepository submissionRepository,
+        ITournamentParticipantRepository participantRepository,
+        ISubmissionQueuePublisher queuePublisher,
+        IUnitOfWork unitOfWork)
     {
-        private readonly ISubmissionRepository _submissionRepository;
-        private readonly IContestRepository _contestRepository;
-        private readonly ISubmissionQueuePublisher _queuePublisher;
+        _submissionRepository = submissionRepository;
+        _participantRepository = participantRepository;
+        _queuePublisher = queuePublisher;
+        _unitOfWork = unitOfWork;
+    }
 
-        public SubmitSolutionHandler(
-            ISubmissionRepository submissionRepository,
-            IContestRepository contestRepository,
-            ISubmissionQueuePublisher queuePublisher)
-        {
-            _submissionRepository = submissionRepository;
-            _contestRepository = contestRepository;
-            _queuePublisher = queuePublisher;
-        }
+    public async Task<Guid> Handle(
+        SubmitSolutionCommand request,
+        CancellationToken cancellationToken)
+    {
+        // 1. Validate participant joined tournament
+        var joined = await _participantRepository.ExistsAsync(
+            request.TournamentId,
+            request.ParticipantId,
+            cancellationToken);
 
-        public async Task HandleAsync(
-            SubmitSolutionCommand command,
-            CancellationToken ct)
-        {
-            // 1. Idempotency check
-            if (await _submissionRepository.ExistsAsync(command.SubmissionId, ct))
-                return; // safe retry, do nothing
+        if (!joined)
+            throw new InvalidOperationException("Participant has not joined this tournament.");
 
-            // 2. Contest validation
-            var isActive = await _contestRepository.IsContestActiveAsync(command.ContestId, ct);
-            if (!isActive)
-                throw new InvalidOperationException("Contest is not active");
+        // 2. Create submission aggregate
+        var submission = Submission.Create(
+            request.ProblemId,
+            request.ParticipantId,
+            request.Language,
+            request.SourceCode);
 
-            // 3. Create domain entity
-            var submission = new Submission(
-                command.SubmissionId,
-                command.UserId,
-                command.ContestId,
-                command.ProblemId);
+        // 3. Persist submission
+        await _submissionRepository.AddAsync(
+            submission,
+            cancellationToken);
 
-            // 4. Persist
-            await _submissionRepository.AddAsync(submission, ct);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 5. Publish execution job
-            await _queuePublisher.PublishAsync(
-                submission.Id,
-                submission.ContestId,
-                ct);
-        }
+        // 4. Publish execution job
+        await _queuePublisher.PublishAsync(
+            submission.Id,
+            submission.TournamentProblemId,
+            cancellationToken);
+
+        return submission.Id;
     }
 }

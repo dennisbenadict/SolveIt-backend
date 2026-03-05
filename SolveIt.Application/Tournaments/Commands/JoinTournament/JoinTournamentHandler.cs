@@ -3,6 +3,7 @@ using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
 using SolveIt.Domain.Exceptions;
 using SolveIt.Domain.TournamentParticipants;
+using SolveIt.Domain.Tournaments;
 
 namespace SolveIt.Application.Tournaments.Commands.JoinTournament;
 
@@ -33,7 +34,7 @@ public sealed class JoinTournamentHandler
         if (tournament is null)
             throw new TournamentNotFoundException();
 
-        if (tournament.Status != Domain.Tournaments.TournamentStatus.Published)
+        if (tournament.Status != TournamentStatus.Published)
             throw new TournamentNotOpenException();
 
         var exists = await _repository.ExistsAsync(

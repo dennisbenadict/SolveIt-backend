@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SolveIt.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SolveIt.Infrastructure.Persistence;
 namespace SolveIt.Infrastructure.Migrations
 {
     [DbContext(typeof(SolveItDbContext))]
-    partial class SolveItDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260305105249_AddTestCases")]
+    partial class AddTestCases
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -309,64 +312,6 @@ namespace SolveIt.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("participants", (string)null);
-                });
-
-            modelBuilder.Entity("SolveIt.Domain.Submissions.Submission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("language");
-
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("participant_id");
-
-                    b.Property<int>("PassedTestCases")
-                        .HasColumnType("integer")
-                        .HasColumnName("passed_test_cases");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
-
-                    b.Property<string>("SourceCode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("source_code");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<int>("TotalTestCases")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_test_cases");
-
-                    b.Property<Guid>("TournamentProblemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("problem_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParticipantId")
-                        .HasDatabaseName("IX_submissions_participant");
-
-                    b.HasIndex("TournamentProblemId")
-                        .HasDatabaseName("IX_submissions_problem");
-
-                    b.ToTable("submissions", (string)null);
                 });
 
             modelBuilder.Entity("SolveIt.Domain.TestCases.TestCase", b =>
