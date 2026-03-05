@@ -30,4 +30,14 @@ public sealed class TournamentRepository
         return await _context.Tournaments
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
+
+    public async Task<List<Tournament>> GetByOrganizerIdAsync(
+    Guid organizerId,
+    CancellationToken cancellationToken)
+    {
+        return await _context.Tournaments
+            .Where(t => t.OrganizerId == organizerId)
+            .OrderByDescending(t => t.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+    }
 }

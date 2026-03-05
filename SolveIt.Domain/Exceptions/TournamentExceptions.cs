@@ -36,3 +36,27 @@ public sealed class TournamentAlreadyCompletedException : DomainException
     public TournamentAlreadyCompletedException()
         : base("Completed tournaments cannot be cancelled.") { }
 }
+
+public sealed class TournamentNotFoundException : DomainException
+{
+    public TournamentNotFoundException()
+        : base("Tournament not found.") { }
+}
+
+public sealed class TournamentNotOwnedException : DomainException
+{
+    public TournamentNotOwnedException()
+        : base("You do not own this tournament.") { }
+}
+
+public sealed class TournamentNotOpenException : DomainException
+{
+    public TournamentNotOpenException()
+        : base("Tournament is not open for participants.") { }
+}
+
+public sealed class AlreadyJoinedException : DomainException
+{
+    public AlreadyJoinedException()
+        : base("You have already joined this tournament.") { }
+}
