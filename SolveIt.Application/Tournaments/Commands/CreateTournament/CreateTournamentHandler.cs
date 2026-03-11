@@ -12,20 +12,20 @@ public sealed class CreateTournamentHandler
     : IRequestHandler<CreateTournamentCommand, Guid>
 {
     private readonly IOrganizerRepository _organizerRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ITrialUsageRepository _trialUsageRepository;
     private readonly ITournamentRepository _tournamentRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateTournamentHandler(
         IOrganizerRepository organizerRepository,
         ITrialUsageRepository trialUsageRepository,
-        IUnitOfWork unitOfWork,
-        ITournamentRepository tournamentRepository)
+        ITournamentRepository tournamentRepository,
+        IUnitOfWork unitOfWork)
     {
         _organizerRepository = organizerRepository;
         _trialUsageRepository = trialUsageRepository;
-        _unitOfWork = unitOfWork;
         _tournamentRepository = tournamentRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Guid> Handle(
@@ -41,7 +41,7 @@ public sealed class CreateTournamentHandler
         if (organizer.HasUsedFreeTrial)
             throw new FreeTrialAlreadyUsedException();
 
-        // Fingerprint check
+        // Device fingerprint protection
         var fingerprintUsed =
             await _trialUsageRepository
                 .ExistsByFingerprintAsync(
@@ -51,7 +51,7 @@ public sealed class CreateTournamentHandler
         if (fingerprintUsed)
             throw new FreeTrialAlreadyUsedException();
 
-        // IP check
+        // IP protection
         var ipUsed =
             await _trialUsageRepository
                 .ExistsByIpAsync(
@@ -61,20 +61,7 @@ public sealed class CreateTournamentHandler
         if (ipUsed)
             throw new FreeTrialAlreadyUsedException();
 
-        // Activate free trial
-        organizer.ActivateFreeTrial();
-
-        // Store usage record
-        var trialUsage = TrialUsage.Create(
-            organizer.Id,
-            request.DeviceFingerprint,
-            request.IpAddress);
-
-        await _trialUsageRepository
-            .AddAsync(trialUsage, cancellationToken);
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+        // Create tournament
         var tournament = Tournament.Create(
             organizer.Id,
             request.Title,
@@ -87,6 +74,26 @@ public sealed class CreateTournamentHandler
             tournament,
             cancellationToken);
 
+        // Mark trial consumed
+        organizer.MarkFreeTrialUsed();
+
+        // Record trial usage
+        if (string.IsNullOrWhiteSpace(request.DeviceFingerprint))
+            throw new ArgumentException("Device fingerprint is required.");
+
+        if (string.IsNullOrWhiteSpace(request.IpAddress))
+            throw new ArgumentException("IP address is required.");
+
+        var trialUsage = TrialUsage.Create(
+            organizer.Id,
+            request.DeviceFingerprint,
+            request.IpAddress);
+
+        await _trialUsageRepository.AddAsync(
+            trialUsage,
+            cancellationToken);
+
+        // Single transaction save
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return tournament.Id;

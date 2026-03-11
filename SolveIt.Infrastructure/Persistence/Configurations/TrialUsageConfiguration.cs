@@ -48,8 +48,8 @@ internal sealed class TrialUsageConfiguration
             .HasDatabaseName("IX_trial_usages_ip_address");
 
         // Created At
-        builder.Property(t => t.CreatedAtUtc)
-            .HasColumnName("created_at_utc")
+        builder.Property(t => t.UsedAtUtc)
+            .HasColumnName("used_at_utc")
             .HasColumnType("timestamp with time zone")
             .IsRequired();
     }

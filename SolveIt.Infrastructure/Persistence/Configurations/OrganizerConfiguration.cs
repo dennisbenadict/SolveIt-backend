@@ -2,102 +2,107 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SolveIt.Domain.Organizers;
 
-namespace SolveIt.Infrastructure.Persistence.Configurations
+namespace SolveIt.Infrastructure.Persistence.Configurations;
+
+internal sealed class OrganizerConfiguration
+    : IEntityTypeConfiguration<Organizer>
 {
-    internal sealed class OrganizerConfiguration
-        : IEntityTypeConfiguration<Organizer>
+    public void Configure(EntityTypeBuilder<Organizer> builder)
     {
-        public void Configure(EntityTypeBuilder<Organizer> builder)
-        {
-            // Table
-            builder.ToTable("organizers");
+        // Table
+        builder.ToTable("organizers");
 
-            // Primary Key
-            builder.HasKey(o => o.Id);
+        // Primary Key
+        builder.HasKey(o => o.Id);
 
-            builder.Property(o => o.Id)
-                .HasColumnName("id")
-                .HasColumnType("uuid")
-                .ValueGeneratedNever();
+        builder.Property(o => o.Id)
+            .HasColumnName("id")
+            .HasColumnType("uuid")
+            .ValueGeneratedNever();
 
-            // Email (unique)
-            builder.Property(o => o.Email)
-                .HasColumnName("email")
-                .HasMaxLength(254)
-                .IsRequired();
+        // Email (unique)
+        builder.Property(o => o.Email)
+            .HasColumnName("email")
+            .HasMaxLength(254)
+            .IsRequired();
 
-            builder.HasIndex(o => o.Email)
-                .IsUnique();
+        builder.HasIndex(o => o.Email)
+            .IsUnique();
 
-            // Phone (unique)
-            builder.Property(o => o.PhoneNumber)
-                .HasColumnName("phone_number")
-                .HasMaxLength(13)
-                .IsRequired();
+        // Phone (unique)
+        builder.Property(o => o.PhoneNumber)
+            .HasColumnName("phone_number")
+            .HasMaxLength(13)
+            .IsRequired();
 
-            builder.HasIndex(o => o.PhoneNumber)
-                .IsUnique();
+        builder.HasIndex(o => o.PhoneNumber)
+            .IsUnique();
 
-            // Password Hash
-            builder.Property(o => o.PasswordHash)
-                .HasColumnName("password_hash")
-                .HasMaxLength(200)
-                .IsRequired();
+        // Password Hash
+        builder.Property(o => o.PasswordHash)
+            .HasColumnName("password_hash")
+            .HasMaxLength(200)
+            .IsRequired();
 
-            // Name
-            builder.Property(o => o.Name)
-                .HasColumnName("name")
-                .HasMaxLength(150)
-                .IsRequired();
+        // Name
+        builder.Property(o => o.Name)
+            .HasColumnName("name")
+            .HasMaxLength(150)
+            .IsRequired();
 
-            // Auth Provider
-            builder.Property(o => o.AuthProvider)
-                .HasColumnName("auth_provider")
-                .HasMaxLength(50)
-                .IsRequired();
+        // Auth Provider
+        builder.Property(o => o.AuthProvider)
+            .HasColumnName("auth_provider")
+            .HasMaxLength(50)
+            .IsRequired();
 
-            // Created At
-            builder.Property(o => o.CreatedAt)
-                .HasColumnName("created_at")
-                .HasColumnType("timestamp with time zone")
-                .IsRequired();
+        // Created At
+        builder.Property(o => o.CreatedAt)
+            .HasColumnName("created_at")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired();
 
-            // Failed Login Attempts
-            builder.Property(o => o.FailedLoginAttempts)
-                .HasColumnName("failed_login_attempts")
-                .IsRequired();
+        // Failed Login Attempts
+        builder.Property(o => o.FailedLoginAttempts)
+            .HasColumnName("failed_login_attempts")
+            .IsRequired();
 
-            builder.Property(o => o.LockoutEndUtc)
-                .HasColumnName("lockout_end_utc")
-                .HasColumnType("timestamp with time zone")
-                .IsRequired(false);
+        // Lockout End
+        builder.Property(o => o.LockoutEndUtc)
+            .HasColumnName("lockout_end_utc")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired(false);
 
-            // Is Blocked
-            builder.Property(o => o.IsBlocked)
-                   .HasColumnName("is_blocked")
-                   .HasColumnType("boolean")
-                   .IsRequired()
-                   .HasDefaultValue(false);
+        // Blocked flag
+        builder.Property(o => o.IsBlocked)
+            .HasColumnName("is_blocked")
+            .HasColumnType("boolean")
+            .IsRequired()
+            .HasDefaultValue(false);
 
-            // Row Version for Concurrency
-            builder.Property(o => o.RowVersion)
-                .HasColumnName("row_version")
-                .IsRowVersion()
-                .IsConcurrencyToken();
+        // Role
+        builder.Property(o => o.Role)
+            .HasColumnName("role")
+            .HasConversion<int>()
+            .IsRequired();
 
-            // User Role
-            builder.Property(o => o.Role)
-                .HasColumnName("role")
-                .HasConversion<int>()
-                .IsRequired();
+        // Free trial tracking
+        builder.Property(o => o.HasUsedFreeTrial)
+            .HasColumnName("has_used_free_trial")
+            .HasColumnType("boolean")
+            .IsRequired()
+            .HasDefaultValue(false);
 
-            // Has Used Free Trial
-            builder.Property(o => o.HasUsedFreeTrial)
-                .HasColumnName("has_used_free_trial")
-                .HasColumnType("boolean")
-                .IsRequired()
-                .HasDefaultValue(false);
-        }
+        builder.Property(o => o.FreeTrialUsedAtUtc)
+            .HasColumnName("free_trial_used_at_utc")
+            .HasColumnType("timestamp with time zone")
+            .IsRequired(false);
+
+        // Concurrency
+        builder.Property(o => o.RowVersion)
+            .HasColumnName("row_version")
+            .IsRowVersion()
+            .IsConcurrencyToken();
     }
 }
 
