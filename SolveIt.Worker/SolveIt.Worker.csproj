@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-SolveIt.Worker-cd649f76-132e-4e3c-8e9a-3b23394b2b0e</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="9.0.1" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SolveIt.Application\SolveIt.Application.csproj" />
+    <ProjectReference Include="..\SolveIt.Domain\SolveIt.Domain.csproj" />
+    <ProjectReference Include="..\SolveIt.Infrastructure\SolveIt.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

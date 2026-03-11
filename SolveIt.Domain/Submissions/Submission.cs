@@ -1,3 +1,6 @@
+using SolveIt.Domain.TournamentProblems;
+using SolveIt.Domain.Common;
+
 namespace SolveIt.Domain.Submissions;
 
 public sealed class Submission
@@ -6,9 +9,11 @@ public sealed class Submission
 
     public Guid TournamentProblemId { get; private set; }
 
+    public TournamentProblem TournamentProblem { get; private set; } = null!;
+
     public Guid ParticipantId { get; private set; }
 
-    public string Language { get; private set; } = null!;
+    public ProgrammingLanguage Language { get; private set; }
 
     public string SourceCode { get; private set; } = null!;
 
@@ -28,7 +33,7 @@ public sealed class Submission
         Guid id,
         Guid problemId,
         Guid participantId,
-        string language,
+        ProgrammingLanguage language,
         string sourceCode)
     {
         Id = id;
@@ -47,12 +52,9 @@ public sealed class Submission
     public static Submission Create(
         Guid problemId,
         Guid participantId,
-        string language,
+        ProgrammingLanguage language,
         string sourceCode)
     {
-        if (string.IsNullOrWhiteSpace(language))
-            throw new ArgumentException("Language required.");
-
         if (string.IsNullOrWhiteSpace(sourceCode))
             throw new ArgumentException("Source code required.");
 
@@ -60,7 +62,7 @@ public sealed class Submission
             Guid.NewGuid(),
             problemId,
             participantId,
-            language.Trim(),
+            language,
             sourceCode);
     }
 

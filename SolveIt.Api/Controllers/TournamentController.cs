@@ -8,6 +8,7 @@ using SolveIt.Application.Tournaments.Commands.CancelTournament;
 using SolveIt.Application.Tournaments.Commands.CreateTournament;
 using SolveIt.Application.Tournaments.Commands.JoinTournament;
 using SolveIt.Application.Tournaments.Commands.PublishTournament;
+using SolveIt.Application.Tournaments.Queries.GetLeaderboard;
 using SolveIt.Application.Tournaments.Queries.GetMyTournaments;
 using SolveIt.Application.Tournaments.Queries.GetTournamentById;
 using System.Net;
@@ -167,5 +168,21 @@ public sealed class TournamentController : ControllerBase
             "Successfully joined tournament",
             "Operation successful",
             HttpStatusCode.OK));
+    }
+
+    [Authorize]
+    [EnableRateLimiting("AuthReadPolicy")]
+    [HttpGet("{id}/leaderboard")]
+    public async Task<ActionResult<ApiResponse<object>>> GetLeaderboard(
+    Guid id,
+    CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetLeaderboardQuery(id),
+            cancellationToken);
+
+        return Ok(ApiResponse<object>.Success(
+            result,
+            "Leaderboard retrieved"));
     }
 }

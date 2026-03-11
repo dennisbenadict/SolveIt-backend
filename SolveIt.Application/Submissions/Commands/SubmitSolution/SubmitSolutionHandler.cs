@@ -1,6 +1,7 @@
-using MediatR;
+﻿using MediatR;
 using SolveIt.Application.Common.Interfaces;
 using SolveIt.Application.Interfaces;
+using SolveIt.Domain.Common;
 using SolveIt.Domain.Submissions;
 
 namespace SolveIt.Application.Submissions.Commands.SubmitSolution;
@@ -29,30 +30,40 @@ public sealed class SubmitSolutionHandler
         SubmitSolutionCommand request,
         CancellationToken cancellationToken)
     {
-        // 1. Validate participant joined tournament
+        // Validate participant joined tournament
         var joined = await _participantRepository.ExistsAsync(
             request.TournamentId,
             request.ParticipantId,
             cancellationToken);
 
         if (!joined)
-            throw new InvalidOperationException("Participant has not joined this tournament.");
+            throw new InvalidOperationException(
+                "Participant has not joined this tournament.");
 
-        // 2. Create submission aggregate
+        // Convert language string → enum
+        if (!Enum.TryParse<ProgrammingLanguage>(
+                request.Language,
+                true,
+                out var language))
+        {
+            throw new ArgumentException("Unsupported programming language.");
+        }
+
+        // Create submission aggregate
         var submission = Submission.Create(
             request.ProblemId,
             request.ParticipantId,
-            request.Language,
+            language,
             request.SourceCode);
 
-        // 3. Persist submission
+        // Persist submission
         await _submissionRepository.AddAsync(
             submission,
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 4. Publish execution job
+        // Publish execution job
         await _queuePublisher.PublishAsync(
             submission.Id,
             submission.TournamentProblemId,

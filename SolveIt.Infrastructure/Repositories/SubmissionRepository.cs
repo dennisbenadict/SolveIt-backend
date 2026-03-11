@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using SolveIt.Application.Interfaces;
 using SolveIt.Domain.Submissions;
 using SolveIt.Infrastructure.Persistence;
@@ -40,5 +41,27 @@ public sealed class SubmissionRepository : ISubmissionRepository
             x => x.TournamentProblemId == problemId &&
                  x.ParticipantId == participantId,
             cancellationToken);
+    }
+
+    public async Task<List<Submission>> GetByParticipantAsync(
+    Guid participantId,
+    CancellationToken cancellationToken)
+    {
+        return await _context.Submissions
+            .Where(x => x.ParticipantId == participantId)
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Submission>> GetAcceptedByTournamentAsync(
+        Guid tournamentId,
+        CancellationToken cancellationToken)
+    {
+        return await _context.Submissions
+            .Include(s => s.TournamentProblem)
+            .Where(s =>
+                s.Status == SubmissionStatus.Accepted &&
+                s.TournamentProblem.TournamentId == tournamentId)
+            .ToListAsync(cancellationToken);
     }
 }

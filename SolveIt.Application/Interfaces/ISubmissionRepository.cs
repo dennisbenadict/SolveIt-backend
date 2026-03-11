@@ -16,4 +16,12 @@ public interface ISubmissionRepository
         Guid problemId,
         Guid participantId,
         CancellationToken cancellationToken);
+
+    Task<List<Submission>> GetByParticipantAsync(
+    Guid participantId,
+    CancellationToken cancellationToken);
+
+    Task<List<Submission>> GetAcceptedByTournamentAsync(
+    Guid tournamentId,
+    CancellationToken cancellationToken);
 }

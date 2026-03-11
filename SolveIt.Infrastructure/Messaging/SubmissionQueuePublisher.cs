@@ -1,15 +1,25 @@
-﻿using SolveIt.Application.Interfaces;
+﻿using MassTransit;
+using SolveIt.Application.Interfaces;
+using SolveIt.Application.Messaging;
 
 namespace SolveIt.Infrastructure.Messaging;
 
 public sealed class SubmissionQueuePublisher : ISubmissionQueuePublisher
 {
-    public Task PublishAsync(
+    private readonly IPublishEndpoint _publishEndpoint;
+
+    public SubmissionQueuePublisher(IPublishEndpoint publishEndpoint)
+    {
+        _publishEndpoint = publishEndpoint;
+    }
+
+    public async Task PublishAsync(
         Guid submissionId,
         Guid problemId,
         CancellationToken cancellationToken)
     {
-        // Temporary placeholder until Kafka/RabbitMQ worker is implemented
-        return Task.CompletedTask;
+        await _publishEndpoint.Publish(
+            new SubmissionRequested(submissionId, problemId),
+            cancellationToken);
     }
 }

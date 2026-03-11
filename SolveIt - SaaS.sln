@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolveIt.Domain", "SolveIt.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolveIt.Application", "SolveIt.Application\SolveIt.Application.csproj", "{301E8ED0-662A-441B-95CE-F41D6B83141D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolveIt.Worker", "SolveIt.Worker\SolveIt.Worker.csproj", "{09925113-82F0-4795-A078-2A42B908B439}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{301E8ED0-662A-441B-95CE-F41D6B83141D}.Release|x64.Build.0 = Release|Any CPU
 		{301E8ED0-662A-441B-95CE-F41D6B83141D}.Release|x86.ActiveCfg = Release|Any CPU
 		{301E8ED0-662A-441B-95CE-F41D6B83141D}.Release|x86.Build.0 = Release|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Debug|x64.Build.0 = Debug|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Debug|x86.Build.0 = Debug|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Release|x64.ActiveCfg = Release|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Release|x64.Build.0 = Release|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Release|x86.ActiveCfg = Release|Any CPU
+		{09925113-82F0-4795-A078-2A42B908B439}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
